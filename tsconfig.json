@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowJs": true,
+  },
+
+	"references": [
+		{"path": "./src/app"}
+	],
+	"exclude": ["."]
+}

@@ -1,0 +1,51 @@
+{
+  "name": "ProductInfo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch-public": "npx webpack -b -w",
+    "watch-jwf": "npx webpack -b -w --config local_modules/javascript-window-framework/src/webpack.config.js",
+    "watch-amf": "npx tsc -b -w local_modules/active-module-framework/src/",
+    "watch-app": "npx tsc -b -w ",
+    "build-jwf": "npx webpack -b --config local_modules/javascript-window-framework/src/webpack.config.js",
+    "build-amf": "npx tsc -b local_modules/active-module-framework/src/",
+    "build-app": "npx tsc -b ",
+    "build-public": "npx webpack -b",
+    "build-all": "npm run build-app & npm run build-jwf & npm run build-public",
+    "start": "node dist/app/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/pg": "^7.4.14",
+    "active-module-framework": "file:local_modules/active-module-framework",
+    "axios": "^0.19.0",
+    "pg": "^7.12.0",
+    "typeorm": "^0.2.18"
+  },
+  "devDependencies": {
+    "analytics-gtag": "^1.0.2",
+    "core-js": "^3.1.4",
+    "css-loader": "^3.2.0",
+    "dts-bundle": "^0.7.3",
+    "javascript-window-framework": "file:local_modules/javascript-window-framework",
+    "node-sass": "^4.12.0",
+    "sass-loader": "^7.1.0",
+    "source-map-loader": "^0.2.4",
+    "style-loader": "^1.0.0",
+    "ts-loader": "^6.0.4",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3",
+    "url-loader": "^2.1.0",
+    "vue-class-component": "^7.1.0",
+    "vue-loader": "^15.7.1",
+    "vue-property-decorator": "^8.2.1",
+    "vue-template-compiler": "^2.6.10",
+    "vue-tsx-support": "^2.3.1",
+    "webpack": "^4.39.1",
+    "webpack-cli": "^3.3.6",
+    "webpack-dev-server": "^3.7.2"
+  }
+}

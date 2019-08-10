@@ -1,0 +1,49 @@
+{
+  "name": "active-module-framework",
+  "version": "0.1.02",
+  "description": "モジュール式WebAPIフレームワーク",
+  "keywords": [],
+  "private": false,
+  "author": "SoraKumo",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "init-amf": "bin/init-amf.js"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.0",
+    "capture-console": "^1.0.1",
+    "express": "^4.17.1",
+    "fs-extra": "^8.1.0",
+    "javascript-window-framework": "^0.1.5",
+    "jsdom": "^15.1.1",
+    "parse5": "^5.1.0",
+    "sprintf": "^0.1.5",
+    "sqlite3": "^4.0.9",
+    "typeorm": "^0.2.18"
+  },
+  "devDependencies": {
+    "@types/sqlite3": "^3.1.5",
+    "@types/jsdom": "^12.2.4",
+    "@types/capture-console": "^1.0.0",
+    "@types/express": "^4.17.0",
+    "@types/node": "^12.6.9",
+    "@types/sha256": "^0.2.0",
+    "@types/sprintf": "^0.1.0",
+    "@types/uuid": "^3.4.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc -b src/tsconfig.json",
+    "watch": "npx tsc -b src/tsconfig.json -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ActiveModuleFramework/active-module-framework.git"
+  },
+  "homepage": "https://croud.jp",
+  "bugs": {
+    "url": "https://github.com/ActiveModuleFramework/active-module-framework/issues"
+  }
+}
