@@ -38,24 +38,22 @@ export interface RakutenItem {
   creditCardFlag: number;
   reviewAverage: number;
   shipOverseasArea: string;
-  genreId: string;
+  genreId: number;
   pointRateStartTime: string;
   itemUrl: string;
 }
 
 export interface RakutenItemResult {
-  data: {
-    Items: RakutenItem[];
-    pageCount: number;
-    TagInformation: unknown[];
-    hits: number;
-    last: number;
-    count: number;
-    page: number;
-    carrier: number;
-    GenreInformation: unknown[];
-    first: number;
-  };
+  Items: RakutenItem[];
+  pageCount: number;
+  TagInformation: unknown[];
+  hits: number;
+  last: number;
+  count: number;
+  page: number;
+  carrier: number;
+  GenreInformation: unknown[];
+  first: number;
 }
 interface Tag {
   parentTagId: number;
@@ -90,36 +88,74 @@ export function Sleep(timeout: number): Promise<void> {
   );
 }
 
+export interface ItemOptions {
+  genreId?: number;
+  page?: number;
+}
+
+function convertParam(params: { [key: string]: unknown }): string {
+  let text = "";
+  for (const index of Object.keys(params)) {
+    if (text.length) text += "&";
+    text += encodeURI(index) + "=" + encodeURI(params[index].toString());
+  }
+  return text;
+}
+
 export class RakutenReader {
   apiKey: string;
   public constructor(apiKey: string) {
     this.apiKey = apiKey;
   }
-  public async loadItem(genreId: number, page?: number) {
+  public async loadItem(options: ItemOptions) {
+    if (isNaN(options.genreId)) return null;
     let URL =
-      "https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706" +
-      `?formatVersion=2&applicationId=${this.apiKey}&genreId=${genreId}`;
-    if (page) {
-      URL += "&page=" + page;
+      "https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706" + `?`;
+
+    const params: { [key: string]: string | number } = {
+      formatVersion: 2,
+      applicationId: this.apiKey,
+      genreId: options.genreId
+    };
+    if (options.page && !isNaN(options.page)) {
+      params.page = options.page;
     }
-    const res = <RakutenItemResult | null>await axios.get(URL).catch(() => {
-      return null;
-    });
+    params.sort = "-updateTimestamp";
+
+    const res = <{ data: RakutenItemResult } | null>(
+      await axios.get(URL + convertParam(params)).catch(() => {
+        return null;
+      })
+    );
     return res.data;
   }
   public async loadGenre(
     onGenre: (genre: RakutenGenreEntity) => Promise<boolean>
-  ) {
-    const getGenre = async (parent: RakutenGenreEntity, level: number) => {
+  ): Promise<RakutenGenreEntity | undefined> {
+    let parallelCount = 0;
+    const getGenre = async (
+      parent: RakutenGenreEntity,
+      level: number
+    ): Promise<boolean> => {
       let i: number;
-      for (i = 0; i < 10; i++) {
+      // //テスト用件数制限
+      // if(recvCount++ > 100)
+      //   return true;
+      for (i = 0; i < 20; i++) {
         const URL =
           "https://app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222" +
           "?formatVersion=2&genrePath=0&elements=current,children,tagGroups" +
           `&applicationId=${this.apiKey}&genreId=${parent.id}`;
+
+        //並列実行対策のウエイト
+        while (parallelCount > 10) await Sleep(500);
+
+        parallelCount++;
         const res = <GenreSrc | null>await axios.get(URL).catch(() => {
           return null;
         });
+        parallelCount--;
+
         if (res) {
           //タググループの取得
           const groups = [];
@@ -141,14 +177,15 @@ export class RakutenReader {
                 tags.push(rakutenTag);
               }
             }
-            if (tags.length) rakutenTagGroup.tags = tags;
+            rakutenTagGroup.tags = tags;
           }
-          if (groups.length) parent.groups = groups;
+          parent.groups = groups;
 
           if (!(await onGenre(parent))) return false;
 
           parent.children = [];
           //子ジャンルの取得
+          const p: Promise<boolean>[] = [];
           for (const child of res.data.children) {
             const rakutenGenre = new RakutenGenreEntity(
               child.genreId,
@@ -157,10 +194,10 @@ export class RakutenReader {
               level
             );
             parent.children.push(rakutenGenre);
-            if (!(await getGenre(rakutenGenre, level + 1))) {
-              return false;
-            }
+            p.push(getGenre(rakutenGenre, level + 1));
           }
+          const result = await Promise.all(p);
+          if (result.indexOf(false) >= 0) return false;
           break;
         } else {
           console.log("Genre read error to retry");
@@ -174,7 +211,7 @@ export class RakutenReader {
       return true;
     };
     const rakutenGenre = new RakutenGenreEntity(0, "root", undefined, 1);
-    await getGenre(rakutenGenre, 1);
+    if (!(await getGenre(rakutenGenre, 2))) return undefined;
     return rakutenGenre;
   }
 }

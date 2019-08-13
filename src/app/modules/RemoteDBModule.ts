@@ -8,7 +8,7 @@ class DatabaseConfigEntity extends typeorm.BaseEntity {
   id?: number;
   @typeorm.Column()
   REMOTEDB_HOST?: string;
-  @typeorm.Column()
+  @typeorm.Column({default:5432})
   REMOTEDB_PORT?: number;
   @typeorm.Column()
   REMOTEDB_DATABASE?: string;

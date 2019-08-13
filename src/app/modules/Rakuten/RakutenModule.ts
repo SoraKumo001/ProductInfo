@@ -3,14 +3,18 @@ import * as typeorm from "typeorm";
 import {
   RakutenGenreEntity,
   RakutenTagEntity,
-  RakutenTagGroupEntity
+  RakutenTagGroupEntity,
+  RakutenItemEntity
 } from "./RakutenGenreEntity";
 import { RemoteDB } from "../RemoteDBModule";
 import { ExtendRepository } from "../ExtendRepository";
-import { RakutenReader } from "./RakutenReader";
+import { RakutenReader, ItemOptions } from "./RakutenReader";
+
+const RAKUTEN_KEY = "1034797542507942346";
 
 export class RakutenModule extends amf.Module {
   private genreRepository?: ExtendRepository<RakutenGenreEntity>;
+  private itemRepository?: ExtendRepository<RakutenItemEntity>;
   private tagRepository?: ExtendRepository<RakutenTagEntity>;
   private tagGroupRepository?: ExtendRepository<RakutenTagGroupEntity>;
   private reading?: boolean;
@@ -21,8 +25,10 @@ export class RakutenModule extends amf.Module {
     remoteDB.addEntity(RakutenTagGroupEntity);
     remoteDB.addEntity(RakutenTagEntity);
     remoteDB.addEntity(RakutenGenreEntity);
+    remoteDB.addEntity(RakutenItemEntity);
     remoteDB.addEventListener("connect", connect => {
       this.genreRepository = new ExtendRepository(connect, RakutenGenreEntity);
+      this.itemRepository = new ExtendRepository(connect, RakutenItemEntity);
       this.tagRepository = new ExtendRepository(connect, RakutenTagEntity);
       this.tagGroupRepository = new ExtendRepository(
         connect,
@@ -39,46 +45,102 @@ export class RakutenModule extends amf.Module {
     if (!genreRepository) return undefined;
 
     const loadGenre = async () => {
-      const reader = new RakutenReader("1034797542507942346");
+      const reader = new RakutenReader(RAKUTEN_KEY);
       this.reading = true;
       this.readCount = 0;
-      const tagSet = new Set<number>();
-      const groupSet = new Set<number>();
-      await reader.loadGenre(async genre => {
-        if (genre.groups) {
-          const p = [];
-          for (const tagGroup of genre.groups) {
-            const saveGroup = async()=>{
-              if(!groupSet.has(tagGroup.id)){
-                await tagGroupRepository.save(tagGroup);
-                tagSet.add(tagGroup.id);
-              }
-              if (tagGroup.tags) {
-                const p = [];
-                for (const tag of tagGroup.tags) {
-                  if (!tagSet.has(tag.id)) {
-                    p.push(tagRepository.save(tag));
-                    tagSet.add(tag.id);
-                  }
-                }
-                await Promise.all(p);
-              }
-            }
-            p.push(saveGroup());
-          }
-          await Promise.all(p);
-        }
-
-        await genreRepository.save(genre);
-        ++this.readCount;
-        console.log(this.readCount);
+      const genre = await reader.loadGenre(async genre => {
+        console.log("%d:%d:%s", this.readCount++, genre.level, genre.name);
         return true;
       });
+      if (genre) {
+        const genre_group: {
+          rakutenGenreEntityId: number;
+          rakutenTagGroupEntityId: number;
+        }[] = [];
+        const genres: RakutenGenreEntity[] = [];
+        const groupMap: { [key: number]: RakutenTagGroupEntity } = {};
+        const tagMap: { [key: number]: RakutenTagEntity } = {};
+        const output = (genre: RakutenGenreEntity) => {
+          let mpath = genre.id + ".";
+          let parent: RakutenGenreEntity | undefined = genre;
+          while ((parent = parent.parent)) mpath = parent.id + "." + mpath;
+          genre.mpath = mpath;
+          genres.push(genre);
+          if (genre.groups)
+            genre.groups.forEach(group => {
+              genre_group.push({
+                rakutenGenreEntityId: genre.id,
+                rakutenTagGroupEntityId: group.id
+              });
+              groupMap[group.id] = group;
+              group.tags.forEach(tag => {
+                tagMap[tag.id] = tag;
+              });
+            });
+          if (genre.children) genre.children.forEach(output);
+        };
+        output(genre);
+
+        let time;
+        time = new Date().getTime();
+        console.log("Group:" + Object.values(groupMap).length);
+        await tagGroupRepository
+          .createQueryBuilder()
+          .insert()
+          .values(Object.values(groupMap))
+          .onConflict(`("id") DO NOTHING`)
+          .execute();
+        console.log(new Date().getTime() - time);
+
+        time = new Date().getTime();
+        const tagValue = Object.values(tagMap);
+        console.log("Tag:" + tagValue.length);
+        for (let i = 0; i < tagValue.length; i += 1000) {
+          const v = tagValue.slice(i, i + 1000);
+          await tagRepository
+            .createQueryBuilder()
+            .insert()
+            .values(v)
+            .onConflict(`("id") DO NOTHING`)
+            .execute();
+        }
+        console.log(new Date().getTime() - time);
+
+        time = new Date().getTime();
+        console.log("Genre:" + genres.length);
+        for (let i = 0; i < genres.length; i += 1000) {
+          const v = genres.slice(i, i + 1000);
+          await genreRepository
+            .createQueryBuilder()
+            .insert()
+            .values(v)
+            .onConflict(`("id") DO NOTHING`)
+            .execute();
+        }
+
+        console.log(new Date().getTime() - time);
+
+        time = new Date().getTime();
+        console.log("GenreToGroup:" + genres.length);
+        for (let i = 0; i < genre_group.length; i += 1000) {
+          const v = genre_group.slice(i, i + 1000);
+          await genreRepository
+            .createQueryBuilder()
+            .insert()
+            .into(genreRepository.metadata.manyToManyRelations[0].joinTableName)
+            .values(v)
+            .onConflict(
+              `("rakutenGenreEntityId","rakutenTagGroupEntityId") DO NOTHING`
+            )
+            .execute();
+        }
+        console.log(new Date().getTime() - time);
+      }
       this.reading = false;
     };
-    this.genreRepository.metadata.connection.transaction(async ()=>{
+    this.genreRepository.metadata.connection.transaction(async () => {
       await loadGenre();
-    })
+    });
 
     return true;
   }
@@ -97,10 +159,41 @@ export class RakutenModule extends amf.Module {
       })
     });
   }
-  async onTest() {
-    const remoteDB = await this.getModule(RemoteDB);
-    remoteDB.enter(() => {
-      this.loadGenre();
+  public async JS_getTreeRoot(genreId: number) {
+    const repository = this.genreRepository;
+    if (!repository) return undefined;
+    const tree = await repository.getParent(genreId);
+    if (!tree) return undefined;
+    let target = tree;
+    for (;;) {
+      const parent = target.parent;
+      if (!parent) return target;
+
+      parent.children = [target];
+      target.parent = undefined;
+      target = parent;
+    }
+  }
+  public async JS_getGenreItem(options: ItemOptions) {
+    const reader = new RakutenReader(RAKUTEN_KEY);
+    const itemResult = await reader.loadItem(options);
+    if (!itemResult) return undefined;
+    itemResult.Items.forEach(item => {
+      const entity: RakutenItemEntity = item;
+      entity.genre = { id: item.genreId } as RakutenGenreEntity;
     });
+    this.itemRepository.save(itemResult.Items);
+
+    return itemResult;
+  }
+  public async JS_getItem(itemCode:string) {
+    const item = await this.itemRepository.findOne(itemCode,{ relations: ["genre"]});
+    return item;
+  }
+  async onTest() {
+    // const remoteDB = await this.getModule(RemoteDB);
+    // remoteDB.enter(() => {
+    //   this.loadGenre();
+    //});
   }
 }

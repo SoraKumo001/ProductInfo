@@ -2,7 +2,7 @@ import { BaseModule, ModuleMap } from "./BaseModule";
 import { AppManager } from "./FrontManager";
 
 export interface CustomMap extends ModuleMap {
-  goLocation: [{ [key: string]: string }]; //parameter
+  goLocation: [{ [key: string]: string}]; //parameter
 }
 
 /**
@@ -25,18 +25,36 @@ export class RouterModule extends BaseModule<CustomMap> {
       false
     );
   }
-  public setLocationParams(params: { [key: string]: string|number|null },history?:boolean) {
+  public setLocationParam(
+    name: string|number,
+    value: string | number | null|undefined,
+    history?: boolean
+  ) {
+    const values = this.getLocationParams();
+    if(value == null)
+      delete values[name];
+    else
+      values[name.toString()] = value.toString();
+    this.updateLocation(values);
+  }
+
+  public setLocationParams(
+    params: { [key: string]: string | number | null },
+    history?: boolean
+  ) {
     const p = Object.assign(this.getLocationParams(), params);
+    this.updateLocation(p);
+  }
+  private updateLocation(p: {[key: string]: string | number | boolean}){
     let search = "";
     for (let key of Object.keys(p)) {
       if (search.length) search += "&";
-      if (p[key] !== null) search += `${encodeURI(key)}=${encodeURI(p[key])}`;
+      if (p[key] !== null) search += `${encodeURI(key)}=${encodeURI(p[key].toString())}`;
     }
     if (this.lastParams !== search) {
-      if(history === undefined || history)
+      if (history === undefined || history)
         window.history.pushState(null, "", "?" + search);
-      else
-        window.history.replaceState(null, "", "?" + search);
+      else window.history.replaceState(null, "", "?" + search);
       this.lastParams = search;
     }
   }
@@ -48,15 +66,14 @@ export class RouterModule extends BaseModule<CustomMap> {
       .split("&")
       .forEach(function(v) {
         const s = v.split("=");
-        if(s[0].length)
-          p[decodeURI(s[0])] = decodeURI(s[1]);
+        if (s[0].length) p[decodeURI(s[0])] = decodeURI(s[1]);
       });
     return p;
   }
-  public getLocationParam(name:string){
+  public getLocationParam(name: string) {
     return this.getLocationParams()[name];
   }
-  public goLocation() {
+  public async goLocation() {
     const p = this.getLocationParams();
     this.lastParams = window.location.search.substring(1);
     this.callEvent("goLocation", p);

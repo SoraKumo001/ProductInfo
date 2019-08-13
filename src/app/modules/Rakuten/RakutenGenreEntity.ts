@@ -1,4 +1,5 @@
 import * as typeorm from "typeorm";
+import { RakutenItem } from "./RakutenReader";
 
 @typeorm.Entity()
 export class RakutenTagGroupEntity {
@@ -12,8 +13,6 @@ export class RakutenTagGroupEntity {
   name: string;
   @typeorm.OneToMany(() => RakutenTagEntity, tag => tag.group)
   tags?: RakutenTagEntity[];
-  @typeorm.ManyToMany(() => RakutenGenreEntity, genre => genre.groups)
-  genres?: RakutenGenreEntity[];
 }
 
 @typeorm.Entity()
@@ -64,23 +63,29 @@ export class RakutenGenreEntity {
   children!: RakutenGenreEntity[];
   @typeorm.TreeParent()
   parent?: RakutenGenreEntity;
+  mpath?:string;
 
-  @typeorm.ManyToMany(() => RakutenTagGroupEntity, group => group.genres)
+  @typeorm.ManyToMany(() => RakutenTagGroupEntity)
   @typeorm.JoinTable()
   groups: RakutenTagGroupEntity[];
 }
 
-/*
+
 @typeorm.Entity()
-export class RakutenItemEntity {
+export class RakutenItemEntity implements RakutenItem {
   @typeorm.PrimaryColumn()
   itemCode: string;
-  tags: RakutenTagEntity[];
+
+  @typeorm.Column('simple-json')
   tagIds: number[];
 
-  genreId: string;
-  genre: RakutenGroupEntity[];
-  @typeorm.Column()
+  @typeorm.ManyToOne(() => RakutenGenreEntity)
+  @typeorm.JoinColumn()
+  genre?: RakutenGenreEntity;
+  genreId:number;
+
+
+  @typeorm.Column('simple-json')
   mediumImageUrls: string[];
   @typeorm.Column()
   pointRate: number;
@@ -102,7 +107,7 @@ export class RakutenItemEntity {
   itemCaption: string;
   @typeorm.Column()
   catchcopy: string;
-  @typeorm.Column()
+  @typeorm.Column('simple-json')
   smallImageUrls: string[];
   @typeorm.Column()
   asurakuClosingTime: string;
@@ -136,7 +141,7 @@ export class RakutenItemEntity {
   shopUrl: string;
   @typeorm.Column()
   creditCardFlag: number;
-  @typeorm.Column()
+  @typeorm.Column('float')
   reviewAverage: number;
   @typeorm.Column()
   shipOverseasArea: string;
@@ -145,4 +150,3 @@ export class RakutenItemEntity {
   @typeorm.Column()
   itemUrl: string;
 }
-*/

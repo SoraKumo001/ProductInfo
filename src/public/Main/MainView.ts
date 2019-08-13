@@ -4,10 +4,14 @@ import { RouterModule } from "../Manager/RouterModule";
 import { UserModule } from "../User/UserModule";
 import "analytics-gtag";
 import { AppManager } from "../Manager/FrontManager";
-import { RakutenGenreTree } from "./GenreTree";
+import { RakutenGenreTree } from "./RakutenGenreTree";
+import { RakutenItemView } from "./RakutenItemView";
+import { RakutenItemWindow } from "./RakutenItemWindow/RakutenItemWindow";
+import { BaseView, FrameWindow } from "javascript-window-framework";
 
 export class MainView extends JWF.BaseView {
   private routerModule: RouterModule;
+  private rakutenItemWindow?:RakutenItemWindow;
   public constructor(manager: AppManager) {
     super({ overlap: true });
     this.setMaximize(true);
@@ -26,6 +30,10 @@ export class MainView extends JWF.BaseView {
     splitter.addChild(0, rakutenGenreTree, "client");
     rakutenGenreTree.load();
 
+    const rakutenItemView = new RakutenItemView(manager);
+    splitter.addChild(1, rakutenItemView, "client");
+
+
     const userModule = manager.getModule(UserModule);
     userModule.addEventListener("loginUser", () => {
       //二回目以降のログインでコンテンツの更新
@@ -38,7 +46,15 @@ export class MainView extends JWF.BaseView {
     let first = true;
     routerModule.addEventListener("goLocation", params => {
       //ページの更新や戻る/進むボタンの処理
-      const id = parseInt(params["p"] || "1");
+      const itemCode = params["item"];
+      if(itemCode){
+        let rakutenItemWindow = RakutenItemWindow.findWindow(RakutenItemWindow.name) as RakutenItemWindow;
+        if(!rakutenItemWindow)
+            rakutenItemWindow = new RakutenItemWindow(itemCode);
+        //   this.rakutenItemWindow.close();
+        // this.rakutenItemWindow = new RakutenItemWindow(itemCode);
+
+      }
     });
     routerModule.goLocation();
   }
