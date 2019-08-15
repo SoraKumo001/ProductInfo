@@ -4,7 +4,8 @@ import {
   RakutenGenreEntity,
   RakutenTagEntity,
   RakutenTagGroupEntity,
-  RakutenItemEntity
+  RakutenItemEntity,
+  RakutenShopEntity
 } from "./RakutenEntity";
 import { RemoteDB } from "../RemoteDBModule";
 import { ExtendRepository } from "../ExtendRepository";
@@ -17,6 +18,7 @@ export class RakutenModule extends amf.Module {
   private itemRepository?: ExtendRepository<RakutenItemEntity>;
   private tagRepository?: ExtendRepository<RakutenTagEntity>;
   private tagGroupRepository?: ExtendRepository<RakutenTagGroupEntity>;
+  private shopRepository?: ExtendRepository<RakutenShopEntity>;
   private reading?: boolean;
   private readCount?: number;
   public async onCreateModule(): Promise<boolean> {
@@ -26,10 +28,12 @@ export class RakutenModule extends amf.Module {
     remoteDB.addEntity(RakutenTagEntity);
     remoteDB.addEntity(RakutenGenreEntity);
     remoteDB.addEntity(RakutenItemEntity);
+    remoteDB.addEntity(RakutenShopEntity);
     remoteDB.addEventListener("connect", connect => {
       this.genreRepository = new ExtendRepository(connect, RakutenGenreEntity);
       this.itemRepository = new ExtendRepository(connect, RakutenItemEntity);
       this.tagRepository = new ExtendRepository(connect, RakutenTagEntity);
+      this.shopRepository = new ExtendRepository(connect, RakutenShopEntity);
       this.tagGroupRepository = new ExtendRepository(
         connect,
         RakutenTagGroupEntity
@@ -144,7 +148,7 @@ export class RakutenModule extends amf.Module {
 
     return true;
   }
-  public async loadItem() {}
+  public async loadItem() { }
   public isLoadGenre() {
     return this.reading;
   }
@@ -165,7 +169,7 @@ export class RakutenModule extends amf.Module {
     const tree = await repository.getParent(genreId);
     if (!tree) return undefined;
     let target = tree;
-    for (;;) {
+    for (; ;) {
       const parent = target.parent;
       if (!parent) return target;
 
@@ -174,32 +178,67 @@ export class RakutenModule extends amf.Module {
       target = parent;
     }
   }
-  public async JS_getGenre(genreId:number){
-        const repository = this.genreRepository;
+  public async JS_getGenre(genreId: number) {
+    const repository = this.genreRepository;
     if (!repository) return undefined;
-    const genre = await repository.findOne(genreId,{ relations: ["groups","groups.tags"]});
+    const genre = await repository.findOne(genreId, { relations: ["groups", "groups.tags"] });
     return genre;
   }
   public async JS_getGenreItem(options: ItemOptions) {
     const reader = new RakutenReader(RAKUTEN_KEY);
     const itemResult = await reader.loadItem(options);
     if (!itemResult) return undefined;
+    const shopMap = new Map<string, string>();
     itemResult.Items.forEach(item => {
       const entity: RakutenItemEntity = item;
       //タグの設定
       entity.tags = [];
-      entity.tagIds.forEach((id)=>{
-        entity.tags.push({id} as RakutenTagEntity);
+      entity.tagIds.forEach((id) => {
+        entity.tags.push({ id } as RakutenTagEntity);
       })
       //ジャンルの設定
       entity.genre = { id: item.genreId } as RakutenGenreEntity;
+      //ショップの抽出
+      shopMap.set(item.shopCode, item.shopName);
     });
+    //アイテム情報の保存
     this.itemRepository.save(itemResult.Items);
+    //ショップ情報の保存
+    this.saveShop(shopMap);
 
     return itemResult;
   }
-  public async JS_getItem(itemCode:string) {
-    const item = await this.itemRepository.findOne(itemCode,{ relations: ["genre","tags"]});
+  private async saveShop(shopMap:Map<string, string>){
+   //ショップデータの保存
+    //既存ショップデータの照合し除去
+    const code =  Array.from(shopMap.keys()) ;
+    const shops = await this.shopRepository.createQueryBuilder().select().where("code in (:...code)",{ code } ).getMany();
+    if (shops) {
+      shops.forEach((shop) => {
+        shopMap.delete(shop.code);
+      })
+    }
+    if (shopMap.size) {
+      //ショップデータのcodeからIDを抽出
+      const shops: RakutenShopEntity[] = [];
+      const loadShop = async (code:string, name:string) => {
+        const id = await RakutenReader.getShopId(code).catch(():null=>{return null});
+        if (id) {
+          const shopEntity: RakutenShopEntity = { id, code, name };
+          shops.push(shopEntity);
+        }
+      }
+      const p: Promise<void>[] = [];
+      for (const code of shopMap.keys()) {
+        p.push(loadShop(code, shopMap.get(code)))
+      }
+      //データが揃うのを待つ
+      await Promise.all(p);
+      this.shopRepository.save(shops);
+    }
+  }
+  public async JS_getItem(itemCode: string) {
+    const item = await this.itemRepository.findOne(itemCode, { relations: ["genre", "tags"] });
     return item;
   }
   async onTest() {

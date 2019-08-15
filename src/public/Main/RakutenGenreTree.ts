@@ -7,7 +7,8 @@ export class RakutenGenreTree extends TreeView {
   rakutenModule: RakutenModule;
   routerModule: RouterModule;
   public constructor(manager: AppManager) {
-    super();
+	super();
+	this.getClient().style.backgroundColor = "rgba(255,255,255,0.8)"
     this.rakutenModule = manager.getModule(RakutenModule);
     this.routerModule = manager.getModule(RouterModule);
     this.routerModule.addEventListener("goLocation", this.location.bind(this));

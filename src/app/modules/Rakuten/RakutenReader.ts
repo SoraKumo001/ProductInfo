@@ -90,8 +90,8 @@ export function Sleep(timeout: number): Promise<void> {
 
 export interface ItemOptions {
   genreId?: number;
-  keyword?:string;
-  tags?:string
+  keyword?: string;
+  tags?: string
   page?: number;
 }
 
@@ -112,7 +112,7 @@ export class RakutenReader {
   public async loadItem(options: ItemOptions) {
     if (isNaN(options.genreId)) return null;
     let URL =
-      "https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706" + `?`;
+      "https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706?";
 
     const params: { [key: string]: string | number } = {
       formatVersion: 2,
@@ -122,10 +122,10 @@ export class RakutenReader {
     if (options.page && !isNaN(options.page)) {
       params.page = options.page;
     }
-    if(options.keyword){
+    if (options.keyword) {
       params.keyword = options.keyword;
     }
-    if(options.tags){
+    if (options.tags) {
       params.tagId = options.tags;
     }
     params.sort = "-updateTimestamp";
@@ -135,7 +135,7 @@ export class RakutenReader {
         return null;
       })
     );
-    return res.data;
+    return res ? res.data : undefined;
   }
   public async loadGenre(
     onGenre: (genre: RakutenGenreEntity) => Promise<boolean>
@@ -221,5 +221,17 @@ export class RakutenReader {
     const rakutenGenre = new RakutenGenreEntity(0, "root", undefined, 1);
     if (!(await getGenre(rakutenGenre, 2))) return undefined;
     return rakutenGenre;
+  }
+  public static async  getShopId(shopCode: string) {
+    const URL = `https://www.rakuten.co.jp/${shopCode}/info.html`;
+    const res = <{ data: string } | null>await axios.get(URL).catch(() => {
+      return undefined;
+    });
+    if (res) {
+      const reg = res.data.match(/service_id=1&shop_id=([\d]+)&/);
+      if (reg.length === 2)
+        return parseInt(reg[1]);
+    }
+    return undefined;
   }
 }

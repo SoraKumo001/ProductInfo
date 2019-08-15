@@ -43,7 +43,7 @@ const config = {
     ]
   },
   resolve: {
-    extensions: ['.ts', '.js', '.tsx', '.scss', 'css', '.svg', 'vue'],
+    extensions: ['.ts', '.js', '.tsx', '.scss', 'css', '.svg','.gif', 'vue'],
     moduleExtensions: ['node_modules'],
     alias: {
      // 'vue$': 'vue/dist/vue.esm.js'

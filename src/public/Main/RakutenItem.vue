@@ -8,6 +8,10 @@
     flex-wrap: wrap;
     justify-content: center;
     > div {
+      animation-name: fadeIn;
+      animation-duration: 0.5s;
+      transform-origin: 50% 50%;
+
       border: solid rgba(0, 0, 0, 0.3);
       display: flex;
       flex-direction: column;
@@ -29,10 +33,11 @@
         overflow: hidden;
       }
       #price {
-        flex:1;
+        flex: 1;
         color: red;
       }
-      #rate,#data {
+      #rate,
+      #data {
         display: flex;
       }
     }
@@ -57,6 +62,16 @@
       margin: 0.1em;
     }
   }
+
+  // アニメーション
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
 }
 </style>
 <template>
@@ -73,6 +88,7 @@
     </div>
 
     <div id="items">
+      <img v-if="loading" :src="imgLoading">
       <div v-for="item in items" :key="item.itemCode" v-on:click="click(item)">
         <div id="img">
           <img :src="item.mediumImageUrls[0]" />
@@ -108,7 +124,7 @@ import {
 } from "./RakutenModule";
 import { RakutenSearchWindow } from "./RakutenSearchWindow/RakutenSearchWindow";
 const StarRating = require("vue-star-rating").default;
-
+const _imgLoading = require("./loading.gif");
 @Component({
   filters: {
     addComma: (value: number) => {
@@ -118,6 +134,8 @@ const StarRating = require("vue-star-rating").default;
   components: { rating: StarRating }
 })
 export default class Item extends Vue {
+  imgLoading=_imgLoading;
+  loading:boolean=false;
   items: RakutenItem[] = [];
   page: number = 0;
   allPage: number = -1;
@@ -189,7 +207,9 @@ export default class Item extends Vue {
     this.items = [];
     this.genre = null;
     this.tagNames = [];
-    this.next();
+
+    this.loading = true;
+    this.next().then(()=>{this.loading=false}).catch(()=>{this.loading=false});
 
     const tagNames: string[] = [];
     if (this.genreId !== 0) {
