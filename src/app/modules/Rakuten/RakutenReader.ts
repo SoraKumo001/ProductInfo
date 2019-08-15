@@ -3,7 +3,7 @@ import {
   RakutenGenreEntity,
   RakutenTagGroupEntity,
   RakutenTagEntity
-} from "./RakutenGenreEntity";
+} from "./RakutenEntity";
 
 export interface RakutenItem {
   mediumImageUrls: string[];
@@ -90,6 +90,8 @@ export function Sleep(timeout: number): Promise<void> {
 
 export interface ItemOptions {
   genreId?: number;
+  keyword?:string;
+  tags?:string
   page?: number;
 }
 
@@ -119,6 +121,12 @@ export class RakutenReader {
     };
     if (options.page && !isNaN(options.page)) {
       params.page = options.page;
+    }
+    if(options.keyword){
+      params.keyword = options.keyword;
+    }
+    if(options.tags){
+      params.tagId = options.tags;
     }
     params.sort = "-updateTimestamp";
 

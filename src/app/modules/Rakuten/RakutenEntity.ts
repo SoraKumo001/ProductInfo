@@ -76,7 +76,10 @@ export class RakutenItemEntity implements RakutenItem {
   @typeorm.PrimaryColumn()
   itemCode: string;
 
-  @typeorm.Column('simple-json')
+  @typeorm.ManyToMany(() => RakutenTagEntity)
+  @typeorm.JoinTable()
+  tags?: RakutenTagEntity[];
+
   tagIds: number[];
 
   @typeorm.ManyToOne(() => RakutenGenreEntity)

@@ -40,10 +40,16 @@ export class AppManager {
     this.modules.push([moduleType as typeof BaseModule,module]);
     return module;
   }
-  public goLocation(name:string,param:string|number){
-    this.router.setLocationParam(name,param);
+  public goLocation(params:{[key:string]:string|number|null}):void
+  public goLocation(name:string,param:string|number|null):void
+  public goLocation(p1:unknown,p2?:unknown):void{
+    if(typeof p1 === 'string')
+      this.router.setLocationParam(p1,p2 as string|number);
+    else
+      this.router.setLocationParams(p1 as {[key:string]:string|number});
     this.router.goLocation();
   }
+
   public setLocationParam(name:string,param:string|number|undefined){
     this.router.setLocationParam(name,param);
   }

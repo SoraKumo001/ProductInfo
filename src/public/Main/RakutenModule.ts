@@ -1,16 +1,30 @@
 import { BaseModule } from "../Manager/BaseModule";
 
+export interface RakutenTagEntity {
+  id: number;
+  name: string;
+  group: RakutenTagGroupEntity;
+}
+export interface RakutenTagGroupEntity {
+  id: number;
+  name: string;
+  tags?: RakutenTagEntity[];
+}
+
 export interface RakutenGenreEntity {
   id: number;
   name: string;
   level: number;
   parentId: number | null;
   children: RakutenGenreEntity[];
+  groups: RakutenTagGroupEntity[];
 }
 
-export interface ItemOptions{
-  genreId:number,
-  page?:number
+export interface ItemOptions {
+  genreId?: number;
+  keyword?:string;
+  tags?:string
+  page?: number;
 }
 
 export interface RakutenItem {
@@ -49,6 +63,8 @@ export interface RakutenItem {
   genreId: number;
   pointRateStartTime: string;
   itemUrl: string;
+  genre: RakutenGenreEntity;
+  tags: RakutenTagEntity[];
 }
 
 export interface RakutenItemResult {
@@ -65,16 +81,24 @@ export interface RakutenItemResult {
 }
 
 export class RakutenModule extends BaseModule {
-  async getGenreTree(id: number, level: number): Promise<RakutenGenreEntity | undefined> {
+  async getGenreTree(
+    id: number,
+    level: number
+  ): Promise<RakutenGenreEntity | undefined> {
     return this.getAdapter().exec("RakutenModule.getTree", id, level);
   }
   async getGenreParent(id: number): Promise<RakutenGenreEntity | undefined> {
     return this.getAdapter().exec("RakutenModule.getTreeRoot", id);
   }
-  async getGenreItem(options: ItemOptions): Promise<RakutenItemResult | undefined> {
-    return this.getAdapter().exec("RakutenModule.getGenreItem",options);
+  async getGenreItem(
+    options: ItemOptions
+  ): Promise<RakutenItemResult | undefined> {
+    return this.getAdapter().exec("RakutenModule.getGenreItem", options);
+  }
+  async getGenre(genreId: number): Promise<RakutenGenreEntity | undefined> {
+    return this.getAdapter().exec("RakutenModule.getGenre", genreId);
   }
   async getItem(itemCode: string): Promise<RakutenItem | undefined> {
-    return this.getAdapter().exec("RakutenModule.getItem",itemCode);
+    return this.getAdapter().exec("RakutenModule.getItem", itemCode);
   }
 }

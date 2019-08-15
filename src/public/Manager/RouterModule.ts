@@ -2,7 +2,7 @@ import { BaseModule, ModuleMap } from "./BaseModule";
 import { AppManager } from "./FrontManager";
 
 export interface CustomMap extends ModuleMap {
-  goLocation: [{ [key: string]: string}]; //parameter
+  goLocation: [{ [key: string]: string }]; //parameter
 }
 
 /**
@@ -26,15 +26,13 @@ export class RouterModule extends BaseModule<CustomMap> {
     );
   }
   public setLocationParam(
-    name: string|number,
-    value: string | number | null|undefined,
+    name: string | number,
+    value: string | number | null | undefined,
     history?: boolean
   ) {
     const values = this.getLocationParams();
-    if(value == null)
-      delete values[name];
-    else
-      values[name.toString()] = value.toString();
+    if (value == null) delete values[name];
+    else values[name.toString()] = value.toString();
     this.updateLocation(values);
   }
 
@@ -42,14 +40,24 @@ export class RouterModule extends BaseModule<CustomMap> {
     params: { [key: string]: string | number | null },
     history?: boolean
   ) {
-    const p = Object.assign(this.getLocationParams(), params);
+    const p = this.getLocationParams();
+    for (const key of Object.keys(params)) {
+      const value = params[key];
+      if (value === null || value === "") delete p[key];
+      else if (typeof value === "number") p[key] = value.toString();
+      else p[key] = value;
+    }
     this.updateLocation(p);
   }
-  private updateLocation(p: {[key: string]: string | number | boolean}){
+  private updateLocation(p: { [key: string]: string | number | boolean }) {
     let search = "";
     for (let key of Object.keys(p)) {
-      if (search.length) search += "&";
-      if (p[key] !== null) search += `${encodeURI(key)}=${encodeURI(p[key].toString())}`;
+      if (p[key] != null) {
+        let value = p[key];
+        if (value.toString) value = value.toString();
+        if (search.length) search += "&";
+        search += `${encodeURI(key)}=${encodeURI(value as string)}`;
+      }
     }
     if (this.lastParams !== search) {
       if (history === undefined || history)
@@ -66,7 +74,7 @@ export class RouterModule extends BaseModule<CustomMap> {
       .split("&")
       .forEach(function(v) {
         const s = v.split("=");
-        if (s[0].length) p[decodeURI(s[0])] = decodeURI(s[1]);
+        if (s[0].length && s[1].length) p[decodeURI(s[0])] = decodeURI(s[1]);
       });
     return p;
   }

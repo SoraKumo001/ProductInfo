@@ -5,7 +5,7 @@ import {
   RakutenTagEntity,
   RakutenTagGroupEntity,
   RakutenItemEntity
-} from "./RakutenGenreEntity";
+} from "./RakutenEntity";
 import { RemoteDB } from "../RemoteDBModule";
 import { ExtendRepository } from "../ExtendRepository";
 import { RakutenReader, ItemOptions } from "./RakutenReader";
@@ -174,12 +174,24 @@ export class RakutenModule extends amf.Module {
       target = parent;
     }
   }
+  public async JS_getGenre(genreId:number){
+        const repository = this.genreRepository;
+    if (!repository) return undefined;
+    const genre = await repository.findOne(genreId,{ relations: ["groups","groups.tags"]});
+    return genre;
+  }
   public async JS_getGenreItem(options: ItemOptions) {
     const reader = new RakutenReader(RAKUTEN_KEY);
     const itemResult = await reader.loadItem(options);
     if (!itemResult) return undefined;
     itemResult.Items.forEach(item => {
       const entity: RakutenItemEntity = item;
+      //タグの設定
+      entity.tags = [];
+      entity.tagIds.forEach((id)=>{
+        entity.tags.push({id} as RakutenTagEntity);
+      })
+      //ジャンルの設定
       entity.genre = { id: item.genreId } as RakutenGenreEntity;
     });
     this.itemRepository.save(itemResult.Items);
@@ -187,7 +199,7 @@ export class RakutenModule extends amf.Module {
     return itemResult;
   }
   public async JS_getItem(itemCode:string) {
-    const item = await this.itemRepository.findOne(itemCode,{ relations: ["genre"]});
+    const item = await this.itemRepository.findOne(itemCode,{ relations: ["genre","tags"]});
     return item;
   }
   async onTest() {

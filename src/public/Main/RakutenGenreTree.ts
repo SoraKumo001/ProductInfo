@@ -1,5 +1,5 @@
 import { TreeView, TreeItem } from "javascript-window-framework";
-import { AppManager } from "../Manager/FrontManager";
+import { AppManager, appManager } from "../Manager/FrontManager";
 import { RouterModule } from "../Manager/RouterModule";
 import { RakutenModule, RakutenGenreEntity } from "./RakutenModule";
 
@@ -16,11 +16,8 @@ export class RakutenGenreTree extends TreeView {
       if (e.opened) this.load(e.item.getItemValue() as number);
     });
     this.addEventListener("itemSelect", e => {
-      if (e.item)
-        this.routerModule.setLocationParam("genre", <number>(
-          e.item.getItemValue()
-        ));
-      this.routerModule.goLocation();
+      if (e.item && e.user)
+        appManager.goLocation({ genre: <number>e.item.getItemValue() ,tags:null,keyword:null});
       //this.load(e.item.getItemValue() as number);
     });
   }
@@ -47,9 +44,8 @@ export class RakutenGenreTree extends TreeView {
     let genreId = 0;
     if (p.genre != null) genreId = parseInt(p.genre);
     const item = this.findItemFromValue(genreId);
-    if(item){
-      if(item!=this.getSelectItem())
-        item.selectItem(true);
+    if (item) {
+      if (item != this.getSelectItem()) item.selectItem(true);
       return;
     }
     const genre = await this.rakutenModule.getGenreParent(genreId);
@@ -61,12 +57,12 @@ export class RakutenGenreTree extends TreeView {
         if (genre.children) {
           genre.children.forEach(child => {
             const childItem = treeItem.findItemFromValue(child.id);
-            setGenre(childItem || treeItem.addItem("",true), child);
+            setGenre(childItem || treeItem.addItem("", true), child);
           });
         }
       };
-      setGenre(this.getRootItem(),genre);
-      this.selectItemFromValue(genreId,true);
+      setGenre(this.getRootItem(), genre);
+      this.selectItemFromValue(genreId, true);
     }
     // if (p.genre != null) this.loadItem(parseInt(p.genre));
   }

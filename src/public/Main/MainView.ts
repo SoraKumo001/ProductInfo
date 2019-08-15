@@ -5,9 +5,9 @@ import { UserModule } from "../User/UserModule";
 import "analytics-gtag";
 import { AppManager } from "../Manager/FrontManager";
 import { RakutenGenreTree } from "./RakutenGenreTree";
-import { RakutenItemView } from "./RakutenItemView";
-import { RakutenItemWindow } from "./RakutenItemWindow/RakutenItemWindow";
-import { BaseView, FrameWindow } from "javascript-window-framework";
+import { RakutenItemWindow } from "./RakutenItemWindow/RakutenItemInfoWindow";
+import RakutenItemVue from "./RakutenItem.vue";
+import { VueView } from "../VueView";
 
 export class MainView extends JWF.BaseView {
   private routerModule: RouterModule;
@@ -30,7 +30,7 @@ export class MainView extends JWF.BaseView {
     splitter.addChild(0, rakutenGenreTree, "client");
     rakutenGenreTree.load();
 
-    const rakutenItemView = new RakutenItemView(manager);
+    const rakutenItemView = new VueView({vue:new RakutenItemVue()});
     splitter.addChild(1, rakutenItemView, "client");
 
 

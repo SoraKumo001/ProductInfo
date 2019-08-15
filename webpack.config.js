@@ -46,7 +46,7 @@ const config = {
     extensions: ['.ts', '.js', '.tsx', '.scss', 'css', '.svg', 'vue'],
     moduleExtensions: ['node_modules'],
     alias: {
-      'vue$': 'vue/dist/vue.esm.js'
+     // 'vue$': 'vue/dist/vue.esm.js'
     }
   },
   optimization: {
