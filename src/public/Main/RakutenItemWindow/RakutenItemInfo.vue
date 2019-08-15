@@ -6,13 +6,24 @@
   height: 100%;
   #items {
     #name {
+      cursor: pointer;
       font-size: 120%;
       font-weight: bold;
-      background-color: #f5f5ff;
+      background-color: #5784ff;
+      color: white;
+      border: solid #c5c5fd 1px;
       border-radius: 1em;
       padding: 0.5em;
     }
+    #shop {
+      cursor: pointer;
+      padding: 0.3em;
+      margin-right: 1em;
+      border-radius: 0.3em;
+      background-color: rgb(210, 213, 255);
+    }
     #stat {
+      margin: 0.4em;
       display: flex;
       align-items: center;
     }
@@ -24,26 +35,35 @@
       border: solid rgba(0, 0, 0, 0.3);
     }
     #tags {
+      cursor: pointer;
       padding: 0.5em;
       margin: 0.5em;
       border: solid rgba(0, 0, 0, 0.1);
     }
-    div#info {
+    #genre {
+      cursor: pointer;
+      text-align: center;
+      border-radius: 0.3em;
+      padding: 0.2em;
+      background-color: rgb(194, 198, 255);
+    }
+    #info {
       white-space: pre-wrap;
       background-color: #eeeeee;
       padding: 0.5em;
     }
-    div#price {
+    #price {
       flex: 1;
-      padding: 0.5em;
-      font-size: 120%;
-      color: red;
+      display: flex;
+      > div {
+        padding: 0.1em;
+        font-size: 120%;
+        color: red;
+        background-color: #fdebeb;
+      }
     }
     #rate {
       display: flex;
-    }
-    #genre {
-      text-decoration: underline #888888;
     }
   }
 }
@@ -51,11 +71,12 @@
 <template>
   <div id="root">
     <div id="items" v-if="item">
-      <div id="name">{{item.itemName}}</div>
+      <div id="name" v-on:click="onItem">{{item.itemName}}</div>
       <div id="stat">
-        <div id="shop">{{item.shopName}}</div>
-        <div id="price">{{item.itemPrice | addComma}}円</div>
-
+        <div id="price">
+          <div>{{item.itemPrice | addComma}}円</div>
+        </div>
+        <div id="shop" v-on:click="onShop">{{item.shopName}}</div>
         <div id="rate">
           <rating
             :rating="item.reviewAverage"
@@ -69,11 +90,11 @@
       <div>
         <img v-for="img in item.mediumImageUrls" :key="img" :src="img" />
       </div>
+      <div id="genre" v-on:click="onGenre">{{item.genre.name}}</div>
       <div id="tags" v-on:click="onTags">
-        <div id="genre">{{item.genre.name}}</div>
         <div v-for="tag in item.tags" :key="tag.id">{{tag.name}}</div>
       </div>
-      <div id="info">{{item.itemCaption}}</div>
+      <div id="info" v-html="item.itemCaption"></div>
     </div>
   </div>
 </template>
@@ -96,7 +117,6 @@ const StarRating = require("vue-star-rating").default;
 export default class ItemInfo extends Vue {
   itemCode!: string;
   item: RakutenItem | null = null;
-  search: string = "検索";
   async created() {
     const rakutenModule = appManager.getModule(RakutenModule);
     const item = await rakutenModule.getItem(this.itemCode);
@@ -104,12 +124,29 @@ export default class ItemInfo extends Vue {
   }
   onTags() {
     if (this.item) {
-      console.log(this.item.tags.map(tag => tag.id).slice(0,10).length);
       appManager.goLocation({
         genre: this.item.genre.id,
-        tags: this.item.tags.map(tag => tag.id).slice(0,10).join(",")
+        keyword: null,
+        tags: this.item.tags
+          .map(tag => tag.id)
+          .slice(0, 10)
+          .join(",")
       });
     }
+  }
+  onItem() {
+    if (this.item) window.open(this.item.itemUrl, "_blank");
+  }
+  onShop() {
+    if (this.item) window.open(this.item.shopUrl, "_blank");
+  }
+  onGenre() {
+    if (this.item)
+      appManager.goLocation({
+        genre: this.item.genre.id,
+        tags: null,
+        keyword: null
+      });
   }
 }
 </script>
