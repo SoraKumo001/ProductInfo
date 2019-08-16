@@ -1,0 +1,29 @@
+{
+  "name": "@jwf/manager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "javascript-window-framework": "^0.1.5",
+    "css-loader": "^3.2.0",
+    "dts-bundle": "^0.7.3",
+    "dts-module-filter": "^1.0.0",
+    "es6-promise": "^4.2.8",
+    "node-sass": "^4.12.0",
+    "sass-loader": "^7.2.0",
+    "source-map-loader": "^0.2.4",
+    "style-loader": "^1.0.0",
+    "ts-loader": "^6.0.4",
+    "typescript": "^3.5.3",
+    "url-loader": "^2.1.0",
+    "webpack": "^4.39.2",
+    "webpack-cli": "^3.3.6"
+  }
+}

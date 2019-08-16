@@ -1,18 +1,16 @@
 import * as JWF from "javascript-window-framework";
 import { TopMenu } from "./TopMenu";
-import { RouterModule } from "../Manager/RouterModule";
-import { UserModule } from "../User/UserModule";
+import { RouterModule } from "@jwf/manager";
+import { UserModule } from "@jwf/manager";
 import "analytics-gtag";
-import { AppManager } from "../Manager/FrontManager";
-import { RakutenGenreTree } from "./RakutenGenreTree";
-import { RakutenItemWindow } from "./RakutenItemWindow/RakutenItemInfoWindow";
-import RakutenItemVue from "./RakutenItem.vue";
+import { Manager } from "@jwf/manager";
+import { RakutenGenreTree } from "../Rakuten/GenreTree/RakutenGenreTree";
+import { RakutenItemWindow } from "../Rakuten/ItemInfoWindow/RakutenItemInfoWindow";
+import MainViewVue from "./MainView.vue";
 import { VueView } from "../VueView";
 
 export class MainView extends JWF.BaseView {
-  private routerModule: RouterModule;
-  private rakutenItemWindow?:RakutenItemWindow;
-  public constructor(manager: AppManager) {
+  public constructor(manager: Manager) {
     super({ overlap: true });
     this.setMaximize(true);
     this.setJwfStyle("MainView");
@@ -24,24 +22,17 @@ export class MainView extends JWF.BaseView {
 
     splitter.addChild(0, new TopMenu(manager), "bottom");
     const routerModule = manager.getModule(RouterModule);
-    this.routerModule = routerModule;
 
     const rakutenGenreTree = new RakutenGenreTree(manager);
     splitter.addChild(0, rakutenGenreTree, "client");
     rakutenGenreTree.load();
 
-    const rakutenItemView = new VueView({vue:new RakutenItemVue()});
+    const rakutenItemView = new VueView(new MainViewVue());
     splitter.addChild(1, rakutenItemView, "client");
 
 
     const userModule = manager.getModule(UserModule);
     userModule.addEventListener("loginUser", () => {
-      //二回目以降のログインでコンテンツの更新
-      if (!first) {
-        const params = routerModule.getLocationParams();
-        const id = parseInt(params["p"] || "1");
-        //コンテンツの強制更新
-      } else first = false;
     });
     let first = true;
     routerModule.addEventListener("goLocation", params => {
@@ -51,14 +42,9 @@ export class MainView extends JWF.BaseView {
         let rakutenItemWindow = RakutenItemWindow.findWindow(RakutenItemWindow.name) as RakutenItemWindow;
         if(!rakutenItemWindow)
             rakutenItemWindow = new RakutenItemWindow(itemCode);
-        //   this.rakutenItemWindow.close();
-        // this.rakutenItemWindow = new RakutenItemWindow(itemCode);
 
       }
     });
     routerModule.goLocation();
-  }
-  public selectPage(id: number) {
-    return "";
   }
 }

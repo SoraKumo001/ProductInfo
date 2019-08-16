@@ -4,15 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch-public": "npx webpack -b -w",
-    "watch-jwf": "npx webpack -b -w --config local_modules/javascript-window-framework/src/webpack.config.js",
-    "watch-amf": "npx tsc -b -w local_modules/active-module-framework/src/",
-    "watch-app": "npx tsc -b -w ",
-    "build-jwf": "npx webpack -b --config local_modules/javascript-window-framework/src/webpack.config.js",
-    "build-amf": "npx tsc -b local_modules/active-module-framework/src/",
-    "build-app": "npx tsc -b ",
-    "build-public": "npx webpack -b",
-    "build-all": "npm run build-app & npm run build-jwf & npm run build-public",
+    "watch:public": "npx webpack -b -w",
+    "watch:jwf": "npx webpack -b -w --config local_modules/javascript-window-framework/src/webpack.config.js",
+    "watch:amf": "npx tsc -b -w local_modules/active-module-framework/src/",
+    "watch:app": "npx tsc -b -w ",
+    "build:jwf": "npx webpack -b --config local_modules/javascript-window-framework/src/webpack.config.js",
+    "build:manager": "npx webpack -b --config local_modules/jwf-manager/src/webpack.config.js",
+    "build:amf": "npx tsc -b local_modules/active-module-framework/src/",
+    "build:app": "npx tsc -b ",
+    "build:public": "npx webpack -b",
+    "build:all": "npm run build:amf && npm run build:app && npm run build:jwf && npm run build:public",
     "start": "node dist/app/index.js"
   },
   "keywords": [],
@@ -29,6 +30,7 @@
     "vue-star-rating": "^1.6.1"
   },
   "devDependencies": {
+    "@jwf/manager": "file:local_modules/jwf-manager",
     "@types/capture-console": "^1.0.0",
     "@types/jsdom": "^12.2.4",
     "@types/sprintf": "^0.1.0",
