@@ -20,29 +20,30 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@jswf/manager": "file:local_modules/@jswf/manager",
+    "@jswf/vue": "file:local_modules/@jswf/vue",
     "@types/express": "^4.17.0",
     "@types/pg": "^7.4.14",
     "active-module-framework": "file:local_modules/active-module-framework",
     "axios": "^0.19.0",
-    "pg": "^7.12.0",
+    "pg": "^7.12.1",
     "source-map-loader": "^0.2.4",
     "typeorm": "^0.2.18",
     "vue-star-rating": "^1.6.1"
   },
   "devDependencies": {
-    "@jwf/manager": "file:local_modules/jwf-manager",
     "@types/capture-console": "^1.0.0",
     "@types/jsdom": "^12.2.4",
     "@types/sprintf": "^0.1.0",
     "@types/uuid": "^3.4.5",
     "analytics-gtag": "^1.0.2",
-    "core-js": "^3.1.4",
+    "core-js": "^3.2.1",
     "css-loader": "^3.2.0",
     "dts-bundle": "^0.7.3",
     "dts-module-filter": "^1.0.0",
     "javascript-window-framework": "file:local_modules/javascript-window-framework",
     "node-sass": "^4.12.0",
-    "sass-loader": "^7.1.0",
+    "sass-loader": "^7.2.0",
     "style-loader": "^1.0.0",
     "ts-loader": "^6.0.4",
     "ts-node": "^8.3.0",
@@ -53,8 +54,8 @@
     "vue-property-decorator": "^8.2.1",
     "vue-template-compiler": "^2.6.10",
     "vue-tsx-support": "^2.3.1",
-    "webpack": "^4.39.1",
+    "webpack": "^4.39.2",
     "webpack-cli": "^3.3.6",
-    "webpack-dev-server": "^3.7.2"
+    "webpack-dev-server": "^3.8.0"
   }
 }

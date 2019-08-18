@@ -1,6 +1,6 @@
 
 import ItemInfo from "./RakutenItemInfo.vue";
-import { VueView } from "../../VueView";
+import { VueView } from "@jswf/vue";
 import { getManager } from "../..";
 
 export class RakutenItemWindow extends VueView{

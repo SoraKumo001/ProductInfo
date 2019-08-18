@@ -1,5 +1,5 @@
 import * as JWF from "javascript-window-framework";
-import { UserModule, Manager, UserEditWindow, SettingView, SettingModule } from "@jwf/manager";
+import { UserModule, Manager, UserEditWindow, SettingView, SettingModule } from "@jswf/manager";
 import { getManager } from "..";
 
 export interface UserInfo {

@@ -82,7 +82,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { RouterModule } from "@jwf/manager";
+import { RouterModule } from "@jswf/manager";
 import {getManager} from "../.."
 import {
   RakutenModule,

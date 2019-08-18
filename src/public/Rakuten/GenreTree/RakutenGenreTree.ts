@@ -1,6 +1,6 @@
 import { TreeView, TreeItem } from "javascript-window-framework";
-import { Manager, } from "@jwf/manager";
-import { RouterModule } from "@jwf/manager";
+import { Manager, } from "@jswf/manager";
+import { RouterModule } from "@jswf/manager";
 import { RakutenModule, RakutenGenreEntity } from "../RakutenModule";
 import { getManager } from "../..";
 

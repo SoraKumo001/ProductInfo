@@ -1,11 +1,11 @@
 import * as JWF from "javascript-window-framework";
 
 import "./TopMenu.scss";
-import { UserInfo, UserModule } from "@jwf/manager";
-import { LoginWindow } from "@jwf/manager";
-import { SettingWindow } from "@jwf/manager";
-import { ParamsModule } from "@jwf/manager";
-import { Manager } from "@jwf/manager";
+import { UserInfo, UserModule } from "@jswf/manager";
+import { LoginWindow } from "@jswf/manager";
+import { SettingWindow } from "@jswf/manager";
+import { ParamsModule } from "@jswf/manager";
+import { Manager } from "@jswf/manager";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const LogoImage = require("../images/sorakumo_logo.svg");

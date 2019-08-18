@@ -7,7 +7,7 @@
 import 'core-js/features/object';
 import 'core-js/features/promise'
 
-import {Manager,UserModule,UserEditWindow,UserInfo} from "@jwf/manager";
+import {Manager,UserModule,UserEditWindow,UserInfo} from "@jswf/manager";
 import { MainView } from "./Main/MainView";
 import "./index.scss";
 

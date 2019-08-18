@@ -1,4 +1,4 @@
-import { BaseModule } from "@jwf/manager";
+import { BaseModule } from "@jswf/manager";
 
 export interface RakutenTagEntity {
   id: number;

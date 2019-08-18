@@ -1,4 +1,4 @@
-import { VueView } from "../../VueView";
+import { VueView } from "@jswf/vue";
 import SearchVue from "./RakutenSearch.vue"
 
 export class RakutenSearchWindow extends VueView{

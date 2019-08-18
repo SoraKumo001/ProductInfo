@@ -1,5 +1,5 @@
 import * as JWF from "javascript-window-framework";
-import { BaseModule, SettingView, Manager, SettingModule} from "@jwf/manager";
+import { BaseModule, SettingView, Manager, SettingModule} from "@jswf/manager";
 import { getManager } from "..";
 
 interface DatabaseInfo {

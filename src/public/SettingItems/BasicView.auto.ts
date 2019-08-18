@@ -1,7 +1,7 @@
 import * as JWF from "javascript-window-framework";
 
 import { MessageBox } from "javascript-window-framework";
-import { SettingView, ParamsModule, Manager, FileWindow, SettingModule } from "@jwf/manager";
+import { SettingView, ParamsModule, Manager, FileWindow, SettingModule } from "@jswf/manager";
 import { getManager } from "..";
 
 export class BasicView extends SettingView {

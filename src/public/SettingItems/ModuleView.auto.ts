@@ -1,5 +1,5 @@
 import "./ModuleView.scss";
-import { SettingView, Manager, SettingModule, InfoModule } from "@jwf/manager";
+import { SettingView, Manager, SettingModule, InfoModule } from "@jswf/manager";
 import { getManager } from "..";
 
 

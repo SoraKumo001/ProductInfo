@@ -1,13 +1,12 @@
 import * as JWF from "javascript-window-framework";
 import { TopMenu } from "./TopMenu";
-import { RouterModule } from "@jwf/manager";
-import { UserModule } from "@jwf/manager";
+import { RouterModule,UserModule,Manager } from "@jswf/manager";
+import { VueView } from "@jswf/vue";
 import "analytics-gtag";
-import { Manager } from "@jwf/manager";
 import { RakutenGenreTree } from "../Rakuten/GenreTree/RakutenGenreTree";
 import { RakutenItemWindow } from "../Rakuten/ItemInfoWindow/RakutenItemInfoWindow";
 import MainViewVue from "./MainView.vue";
-import { VueView } from "../VueView";
+
 
 export class MainView extends JWF.BaseView {
   public constructor(manager: Manager) {
