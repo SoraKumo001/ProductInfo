@@ -1,7 +1,7 @@
 import * as JWF from "javascript-window-framework";
+import { VueView } from "@jswf/vue";
 import { TopMenu } from "./TopMenu";
 import { RouterModule,UserModule,Manager } from "@jswf/manager";
-import { VueView } from "@jswf/vue";
 import "analytics-gtag";
 import { RakutenGenreTree } from "../Rakuten/GenreTree/RakutenGenreTree";
 import { RakutenItemWindow } from "../Rakuten/ItemInfoWindow/RakutenItemInfoWindow";

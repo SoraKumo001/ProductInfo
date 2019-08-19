@@ -27,6 +27,7 @@ const config = {
       }, {
         test: /\.(js|jsx)$/,
         use: ['source-map-loader'],
+        exclude: /node_modules/,
         enforce: "pre"
       }, {
         test: /\.(scss|css)$/,
@@ -44,11 +45,14 @@ const config = {
     ]
   },
   resolve: {
+    symlinks: false,
     extensions: ['.ts', '.js', '.tsx', '.scss', 'css', '.svg', '.gif', 'vue'],
-    moduleExtensions: ['node_modules'],
     alias: {
       // 'vue$': 'vue/dist/vue.esm.js'
-    }
+    },
+    modules: [
+      "node_modules"
+    ],
   },
   optimization: {
     minimizer: [
@@ -76,6 +80,6 @@ const config = {
   plugins: [new VueLoaderPlugin()]
 };
 //if (config.mode === "development") {
-  config.devtool = 'source-map';
+config.devtool = 'source-map';
 //}
 module.exports = config;

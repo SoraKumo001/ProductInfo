@@ -1,8 +1,8 @@
 import * as JWF from "javascript-window-framework";
 import { UserModule } from "./UserModule";
 import { Manager } from "../Manager/Manager";
-const LOGIN_ID_SVG = require("./images/login_id.svg");
-const LOGIN_PASS_SVG = require("./images/login_pass.svg");
+import LOGIN_ID_SVG from "../../resource/User/images/login_id.svg";
+import LOGIN_PASS_SVG from "../../resource/User/images/login_pass.svg";
 /**
  *ユーザ編集用クラス
  *
