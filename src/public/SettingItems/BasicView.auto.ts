@@ -1,12 +1,11 @@
-import * as JWF from "javascript-window-framework";
 
-import { MessageBox } from "javascript-window-framework";
+import { MessageBox, TableFormView } from "@jswf/core";
 import { SettingView, ParamsModule, Manager, FileWindow, SettingModule } from "@jswf/manager";
 import { getManager } from "..";
 
 export class BasicView extends SettingView {
   private paramsModule: ParamsModule;
-  private form: JWF.TableFormView;
+  private form: TableFormView;
   public constructor(manager: Manager) {
     super(manager);
     this.setJwfStyle("BasicView");
@@ -15,7 +14,7 @@ export class BasicView extends SettingView {
     this.paramsModule = paramsModule;
 
     //DB設定入力フォーム
-    const form = new JWF.TableFormView();
+    const form = new TableFormView();
     this.form = form;
     form.setAutoSize(true);
     form.addItem([
@@ -70,7 +69,7 @@ export class BasicView extends SettingView {
           //設定イベントに対する処理
           click: async () => {
             const params = form.getParams() as unknown;
-            const msg = new JWF.MessageBox("設定保存", "送信中");
+            const msg = new MessageBox("設定保存", "送信中");
             if (await paramsModule.setGlobalParam("BASIC_DATA", params)) {
               msg.close();
             } else {

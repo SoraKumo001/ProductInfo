@@ -1,12 +1,12 @@
-import * as JWF from "javascript-window-framework";
-import { VueView } from "@jswf/vue";
+import * as JWF from "@jswf/core";
 import { TopMenu } from "./TopMenu";
-import { RouterModule,UserModule,Manager } from "@jswf/manager";
-import "analytics-gtag";
+import { RouterModule, UserModule, Manager } from "@jswf/manager";
 import { RakutenGenreTree } from "../Rakuten/GenreTree/RakutenGenreTree";
 import { RakutenItemWindow } from "../Rakuten/ItemInfoWindow/RakutenItemInfoWindow";
-import MainViewVue from "./MainView.vue";
-
+import { FrameWindow, BaseView } from "@jswf/core";
+import React from "react";
+import { render } from "react-dom";
+import { MainViewCom } from "./MainViewCom";
 
 export class MainView extends JWF.BaseView {
   public constructor(manager: Manager) {
@@ -26,22 +26,23 @@ export class MainView extends JWF.BaseView {
     splitter.addChild(0, rakutenGenreTree, "client");
     rakutenGenreTree.load();
 
-    const rakutenItemView = new VueView(new MainViewVue());
+    const rakutenItemView = new BaseView();
+    render(React.createElement(MainViewCom, {}), rakutenItemView.getClient());
+
     splitter.addChild(1, rakutenItemView, "client");
 
-
     const userModule = manager.getModule(UserModule);
-    userModule.addEventListener("loginUser", () => {
-    });
-    let first = true;
+    userModule.addEventListener("loginUser", () => {});
+
     routerModule.addEventListener("goLocation", params => {
       //ページの更新や戻る/進むボタンの処理
       const itemCode = params["item"];
-      if(itemCode){
-        let rakutenItemWindow = RakutenItemWindow.findWindow(RakutenItemWindow.name) as RakutenItemWindow;
-        if(!rakutenItemWindow)
-            rakutenItemWindow = new RakutenItemWindow(itemCode);
-
+      if (itemCode) {
+        let rakutenItemWindow = RakutenItemWindow.findWindow(
+          RakutenItemWindow.name
+        ) as RakutenItemWindow;
+        if (!rakutenItemWindow)
+          rakutenItemWindow = new RakutenItemWindow(itemCode);
       }
     });
     routerModule.goLocation();

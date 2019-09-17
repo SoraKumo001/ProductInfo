@@ -1,11 +1,10 @@
 const path = require('path');
 const glob = require("glob");
 const TerserPlugin = require('terser-webpack-plugin');
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const config = {
   performance: { hints: false },
-  //mode: 'production',
-  mode: 'development',
+  mode: 'production',
+  //mode: 'development',
   entry: [
     path.resolve(__dirname, 'src/public/index.ts'),
   ].concat(glob.sync("./src/public/**/*.auto.ts")),
@@ -16,14 +15,8 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.vue$/,
-        loader: 'vue-loader'
-      },
-      {
         test: /\.(ts|tsx)$/,
-        loader: 'ts-loader', options: {
-          appendTsSuffixTo: [/\.vue$/]
-        }
+        loader: 'ts-loader'
       }, {
         test: /\.(js|jsx)$/,
         use: ['source-map-loader'],
@@ -32,7 +25,6 @@ const config = {
       }, {
         test: /\.(scss|css)$/,
         use: [
-          'vue-style-loader',
           'style-loader',
           'css-loader',
           'sass-loader'
@@ -46,10 +38,7 @@ const config = {
   },
   resolve: {
     symlinks: false,
-    extensions: ['.ts', '.js', '.tsx', '.scss', 'css', '.svg', '.gif', 'vue'],
-    alias: {
-      // 'vue$': 'vue/dist/vue.esm.js'
-    },
+    extensions: ['.ts', '.js', '.tsx', '.scss', 'css', '.svg', '.gif'],
     modules: [
       "node_modules"
     ],
@@ -76,8 +65,7 @@ const config = {
   devServer: {
     contentBase: path.join(__dirname, 'dist/public'),
     host: "localhost"
-  },
-  plugins: [new VueLoaderPlugin()]
+  }
 };
 //if (config.mode === "development") {
 config.devtool = 'source-map';

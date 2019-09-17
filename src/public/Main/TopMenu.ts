@@ -1,4 +1,4 @@
-import * as JWF from "javascript-window-framework";
+import * as JWF from "@jswf/core";
 
 import "./TopMenu.scss";
 import { UserInfo, UserModule } from "@jswf/manager";
@@ -8,7 +8,7 @@ import { ParamsModule } from "@jswf/manager";
 import { Manager } from "@jswf/manager";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const LogoImage = require("../images/sorakumo_logo.svg");
+import LogoImage from "../images/sorakumo_logo.svg";
 export class TopMenu extends JWF.BaseView {
   public constructor(manager: Manager) {
     super();

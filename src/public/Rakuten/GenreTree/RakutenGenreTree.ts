@@ -1,4 +1,4 @@
-import { TreeView, TreeItem } from "javascript-window-framework";
+import { TreeView, TreeItem } from "@jswf/core";
 import { Manager, } from "@jswf/manager";
 import { RouterModule } from "@jswf/manager";
 import { RakutenModule, RakutenGenreEntity } from "../RakutenModule";

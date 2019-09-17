@@ -3,7 +3,9 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "allowJs": true,
-    "strict": true
+    "strict": true,
+    "jsx": "react",
+    "types": []
   },
 
 	"references": [

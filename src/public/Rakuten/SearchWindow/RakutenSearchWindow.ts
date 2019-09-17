@@ -1,9 +1,11 @@
-import { VueView } from "@jswf/vue";
-import SearchVue from "./RakutenSearch.vue"
-
-export class RakutenSearchWindow extends VueView{
-  constructor(genreId:number){
-    super({vue:new SearchVue({data:{genreId}}),frame:true});
+import { FrameWindow } from "@jswf/core";
+import React from "react";
+import {render} from 'react-dom';
+import {RakutenSearch} from "./RakutenSearch";
+export class RakutenSearchWindow extends FrameWindow{
+  constructor(){
+    super();
+    render(React.createElement(RakutenSearch,{}),this.getClient());
     this.setSize(600,500);
     this.setPos();
     this.setTitle("検索");
