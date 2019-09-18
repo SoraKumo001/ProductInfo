@@ -6,8 +6,8 @@ const config = {
   mode: 'production',
   //mode: 'development',
   entry: [
-    path.resolve(__dirname, 'src/public/index.ts'),
-  ].concat(glob.sync("./src/public/**/*.auto.ts")),
+    path.resolve(__dirname, 'src/front/index.tsx'),
+  ].concat(glob.sync("./src/front/**/*.auto.ts")),
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist/public/js')
@@ -67,7 +67,8 @@ const config = {
     host: "localhost"
   }
 };
-//if (config.mode === "development") {
+if (config.mode === "development") {
+}
 config.devtool = 'source-map';
-//}
+
 module.exports = config;
