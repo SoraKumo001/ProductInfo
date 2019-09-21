@@ -9,3 +9,4 @@ dist/public/favicon.ico
 .vscode/
 /dist/app
 /dist/public
+src/---/

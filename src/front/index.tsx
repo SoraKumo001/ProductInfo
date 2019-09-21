@@ -4,17 +4,34 @@ import { SplitView } from "@jswf/react";
 import { GenreTree } from "./GenreTree";
 import { Router, LocationParams } from "./Router";
 import { Manager } from "./Manager.tsx";
-import { Adapter } from "@jswf/core";
+import { Adapter } from "@jswf/adapter";
+import { RakutenModule } from "./Module/RakutenModule";
+import { RakutenItemList } from "./ItemList/RakutenItem";
 
 function App() {
   const [location, setLocation] = useState<LocationParams>({});
   const [adapter, setAdapter] = useState<Adapter>();
+  const [rakutenModule, setRakutenModule] = useState<RakutenModule>();
   return (
-    <Manager onAdapter={adapter=>setAdapter(adapter)}>
-      <Router onLocation={loc => setLocation(loc)}>
+    <Manager
+      onAdapter={adapter => setAdapter(adapter)}
+      onRakutenModule={module => setRakutenModule(module)}
+    >
+      <Router onLocation={location => setLocation(location)}>
         <SplitView pos={300}>
-          <GenreTree adapter={adapter!} location={location} />
-          <div>{JSON.stringify(location)}</div>
+          <>
+            {rakutenModule && (
+              <GenreTree rakutenModule={rakutenModule} location={location} />
+            )}
+          </>
+          <>
+            {rakutenModule && (
+              <RakutenItemList
+                rakutenModule={rakutenModule}
+                location={location}
+              />
+            )}
+          </>
         </SplitView>
       </Router>
     </Manager>

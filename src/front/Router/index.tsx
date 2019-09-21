@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 
 export interface LocationParams {
+  [key: string]: string;
+}
+export interface LocationParamsSrc {
   [key: string]: string | number | boolean | null;
 }
 interface Props {
@@ -15,6 +18,7 @@ export class Router extends Component<Props> {
   }
   componentDidMount() {
     Router.routers.add(this);
+    Router.goLocation();
   }
   componentWillUnmount() {
     Router.routers.delete(this);
@@ -31,7 +35,7 @@ export class Router extends Component<Props> {
     this.updateLocation(values, history);
   }
 
-  public static setLocation(params: LocationParams, history?: boolean) {
+  public static setLocation(params: LocationParamsSrc, history?: boolean) {
     const p = this.getLocationParams();
     for (const key of Object.keys(params)) {
       const value = params[key];
@@ -79,7 +83,6 @@ export class Router extends Component<Props> {
     const p = Router.getLocationParams();
     Router.lastParams = window.location.search.substring(1);
     for (const router of Router.routers) {
-      console.log(p)
       if (router.props.onLocation) {
         router.props.onLocation(p);
 

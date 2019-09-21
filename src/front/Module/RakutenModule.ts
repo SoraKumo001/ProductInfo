@@ -1,4 +1,4 @@
-import { Adapter } from "@jswf/core";
+import { Adapter } from "@jswf/adapter";
 
 export interface RakutenTagEntity {
   id: number;

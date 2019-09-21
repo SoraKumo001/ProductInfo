@@ -1,0 +1,17 @@
+{
+  "name": "@jswf/adapter",
+  "version": "1.0.0",
+  "description": "Ajax adapter",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "npx tsc -b src",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "~3.5.3"
+  }
+}

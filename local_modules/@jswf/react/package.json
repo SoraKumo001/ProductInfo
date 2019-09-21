@@ -1,0 +1,43 @@
+{
+  "name": "@jswf/react",
+  "version": "0.2.14",
+  "description": "Virtual Window for React",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -b src",
+    "watch": "tsc -b -w src"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "jswf",
+    "react",
+    "VirtualWindow",
+    "ListView",
+    "TreeView",
+    "SplitView"
+  ],
+  "author": "SoraKumo",
+  "license": "MIT",
+  "dependencies": {
+    "react": "~16.9.0",
+    "resize-observer-polyfill": "~1.5.1",
+    "styled-components": "~4.3.2"
+  },
+  "devDependencies": {
+    "typescript": "~3.6.3",
+    "@types/react": "~16.9.2",
+    "@types/react-dom": "~16.9.0",
+    "@types/styled-components": "~4.1.19"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JavaScript-WindowFramework/jswf-react.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JavaScript-WindowFramework/jswf-react/issues"
+  },
+  "homepage": "https://ttis.croud.jp/?uuid=b292d429-dbad-49b5-8fed-6d268f4feaf0"
+}

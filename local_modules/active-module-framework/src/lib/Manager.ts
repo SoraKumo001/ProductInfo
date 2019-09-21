@@ -194,6 +194,7 @@ export class Manager {
   public async output(msg: string, ...params: unknown[]): Promise<void> {
     if (this.debug) {
       // eslint-disable-next-line no-console
+      (process.stdout as any)._handle.setBlocking(false);
       console.log(
         (process.env.NODE_APP_INSTANCE || "0") + ":" + msg,
         ...params
