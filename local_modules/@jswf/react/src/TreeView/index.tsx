@@ -78,7 +78,6 @@ export class TreeView extends Component<Props, State> {
         onItemClick: p.onItemClick,
         onDoubleClick: p.onDoubleClick
       };
-
       //子アイテムの作成
       item.children = (element.props.children
         ? React.Children.map(element.props.children, child => {

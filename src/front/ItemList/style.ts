@@ -5,6 +5,7 @@ export const Root = styled.div`
   height: 100%;
 
   > #items {
+    flex:1;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;

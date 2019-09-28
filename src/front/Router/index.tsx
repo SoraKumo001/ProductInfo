@@ -61,7 +61,7 @@ export class Router extends Component<Props> {
         window.history.pushState(null, "", "?" + search);
       else window.history.replaceState(null, "", "?" + search);
       this.lastParams = search;
-      Router.goLocation()
+      Router.goLocation();
     }
   }
   public static getLocationParams() {
@@ -82,12 +82,11 @@ export class Router extends Component<Props> {
   public static goLocation() {
     const p = Router.getLocationParams();
     Router.lastParams = window.location.search.substring(1);
-    for (const router of Router.routers) {
+    Router.routers.forEach(router => {
       if (router.props.onLocation) {
         router.props.onLocation(p);
-
       }
-    }
+    });
   }
 }
-addEventListener("popstate", ()=>Router.goLocation(), false);
+addEventListener("popstate", () => Router.goLocation(), false);

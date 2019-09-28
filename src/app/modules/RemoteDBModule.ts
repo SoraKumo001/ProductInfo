@@ -70,7 +70,7 @@ export class RemoteDB<T extends CustomMap = CustomMap> extends amf.Module<T> {
     return true;
   }
   public async connect() {
-    if (await this.open()) {
+    if (await this.open().catch(()=>false)) {
       this.output("DBの接続完了");
       return true;
     }

@@ -39,10 +39,8 @@ const config = {
     extensions: [".ts", ".js", ".tsx", ".scss", "css", ".svg", ".gif"],
     modules: ["node_modules"],
     alias: {
-      "styled-components": path.resolve(
-        "node_modules",
-        "styled-components"
-      )
+      "styled-components": path.resolve("node_modules", "styled-components"),
+      "react": path.resolve("node_modules", "react")
     }
   },
   optimization: {

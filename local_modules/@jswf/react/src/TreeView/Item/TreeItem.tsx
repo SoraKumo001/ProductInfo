@@ -113,7 +113,7 @@ export class TreeItem extends Component<TreeItemProps, State> {
           id="item"
           className={this.state.item.select ? "select" : ""}
           onClick={() => {
-            this.props.onItemClick && this.props.onItemClick();
+            this.state.item.onItemClick && this.state.item.onItemClick();
             if (this.props.treeView) {
               this.props.treeView.selectItem(this);
               this.props.treeView.props.onItemClick &&
@@ -121,7 +121,7 @@ export class TreeItem extends Component<TreeItemProps, State> {
             }
           }}
           onDoubleClick={() => {
-            this.props.onDoubleClick && this.props.onDoubleClick();
+            this.state.item.onDoubleClick && this.state.item.onDoubleClick();
             this.props.treeView &&
               this.props.treeView.props.onItemDoubleClick &&
               this.props.treeView.props.onItemDoubleClick(this);

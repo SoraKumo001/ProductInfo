@@ -1,5 +1,4 @@
 import * as React from "react";
-import imgLoading from "./loading.gif";
 import { LocationParams, Router } from "../Router";
 import {
   RakutenModule,
@@ -11,10 +10,12 @@ import {
 } from "../Module/RakutenModule";
 import { StarRating } from "@jswf/react-star-rating";
 import { Root } from "./style";
+import { LoadingImage } from "../Parts/LodingImage";
+import { ManagerState } from "../Manager.tsx";
+import { useSelector, connect } from "react-redux";
 
 interface Props {
   location: LocationParams;
-  rakutenModule: RakutenModule;
 }
 interface State {
   genreId: number;
@@ -26,7 +27,8 @@ interface State {
   loading: boolean;
 }
 
-export class RakutenItemList extends React.Component<Props, State> {
+
+export class _RakutenItemList extends React.Component<Props&ManagerState, State> {
   allPage: number = -1;
   page: number = 0;
   Root: React.RefObject<HTMLDivElement> = React.createRef();
@@ -39,11 +41,12 @@ export class RakutenItemList extends React.Component<Props, State> {
     tagNames: [],
     loading: false
   };
+
   render() {
     return (
       <Root ref={this.Root} onScroll={this.next.bind(this)}>
+        {this.state.loading && <LoadingImage width={96} height={96}/>}
         <div id="items">
-          {this.state.loading && <img src={imgLoading} />}
           {this.state.items &&
             this.state.items.map((item, index) => (
               <div key={index} onClick={() => this.click(item)}>
@@ -78,7 +81,6 @@ export class RakutenItemList extends React.Component<Props, State> {
     //   genreId: parseInt(params["genreId"] || "0"),
     //   keyword: params["keyword"]
     // });
-    console.log(this.props.location);
     this.location(this.props.location);
   }
 
@@ -114,7 +116,7 @@ export class RakutenItemList extends React.Component<Props, State> {
       let itemResult: RakutenItemResult | undefined;
       if (sessionValue) itemResult = JSON.parse(sessionValue);
       if (!itemResult) {
-        itemResult = await this.props.rakutenModule.getGenreItem(
+        itemResult = await this.props.Manager.rakutenModule.getGenreItem(
           params as ItemOptions
         );
         sessionStorage.setItem(paramIndex, JSON.stringify(itemResult));
@@ -167,7 +169,7 @@ export class RakutenItemList extends React.Component<Props, State> {
 
     const tagNames: string[] = [];
     if (this.state.genreId !== 0) {
-      const genre = await this.props.rakutenModule.getGenre(this.state.genreId);
+      const genre = await this.props.Manager.rakutenModule.getGenre(this.state.genreId);
       if (genre) {
         this.setState({ genre });
         const tagMap: { [key: number]: RakutenTagEntity } = {};
@@ -199,3 +201,7 @@ export class RakutenItemList extends React.Component<Props, State> {
     Router.setLocation({ item: item.itemCode });
   }
 }
+function mapStateToProps(state:ManagerState) {
+  return {Manager:state.Manager};
+}
+export const RakutenItemList = connect(mapStateToProps)(_RakutenItemList);
