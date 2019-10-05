@@ -1,8 +1,7 @@
 import { JSWindow, WindowState } from "@jswf/react";
-import React, { useState, useMemo } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { ManagerState } from "../Manager.tsx";
-import { UserInfo, UserModule } from "./UserModule";
+import React, { useState, useMemo, useEffect } from "react";
+import { ManagerModule } from "../Manager.tsx";
+import { UserModule, UserInfo } from "./UserModule";
 import { CircleButton } from "../Parts/CircleButton";
 import styled from "styled-components";
 import { MessageModule } from "../Parts/MessageText";
@@ -45,54 +44,46 @@ const Style = styled.form`
   }
 `;
 
-interface Props {
-  user?: {
-    no: number;
-    pass: string;
-    type: number;
-    id: string;
-    name: string;
-  };
-  onUpdate: () => void;
-}
-UserEditWindow.defaultProps = {
-  user: {
-    no: 0,
-    pass: "",
-    type: 0,
-    id: "",
-    name: ""
-  }
-};
-export function UserEditWindow(props?: Props) {
-  const adapter = useSelector((state: ManagerState) => state.Manager.adapter);
-  const [user, setUser] = useState(props!.user!);
-  const [windowState, setWindowState] = useState(WindowState.NORMAL);
+export function UserEditWindow() {
   const message = useModule(MessageModule);
+  const userModule = useModule(UserModule);
+  const [windowState, setWindowState] = useState(WindowState.NORMAL);
+  const [user, setUser] = useState<UserInfo>();
+
+  const editInfo = userModule.getState("editInfo");
+  useMemo(() => {
+    if (editInfo) setUser(editInfo);
+  }, [editInfo]);
   const onEnter = {
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
-      //  if (e.keyCode === 13) props.onLogin && props.onLogin(true, info);
+      if (e.keyCode === 13) updateUser();
     }
   };
-  useMemo(() => {
-    setUser(props!.user!);
-    setWindowState(WindowState.NORMAL);
-  }, [props]);
+
+  const visible = userModule.getState("isEditWindow");
+  if (!visible || !user) return <></>;
   function updateUser() {
-    const userModule = new UserModule(adapter);
-    userModule
-      .setUser(user.no, user.id, user.name, user.pass, user.type === 0)
-      .then(user => {
-        if (user) {
-          message.setMessage("ユーザ設定完了");
-          setWindowState(WindowState.HIDE);
-        } else {
-          message.setMessage("ユーザ設定失敗");
-        }
-      });
+    if (user) {
+      userModule
+        .setUser(user.no, user.id, user.name, user.pass!, user.type === "local")
+        .then(result => {
+          if (result) {
+            message.setMessage("ユーザ設定完了");
+            userModule.getUsers(user.type === "local");
+            setWindowState(WindowState.HIDE);
+          } else {
+            message.setMessage("ユーザ設定失敗");
+          }
+        });
+    }
   }
   return (
     <JSWindow
+      onUpdate={e => {
+        e.realWindowState === WindowState.HIDE &&
+          userModule.setState({ isEditWindow: false });
+        setWindowState(WindowState.NORMAL);
+      }}
       windowState={windowState}
       title={user.no === 0 ? "ユーザ追加" : `ユーザ設定(No:${user.no})`}
       clientStyle={{
@@ -104,12 +95,12 @@ export function UserEditWindow(props?: Props) {
     >
       <Style>
         <div>
-          <div>ユーザ名</div>
+          <div>ユーザID</div>
           <input
             {...onEnter}
             autoFocus={true}
             defaultValue={user.id}
-            onChange={e => setUser({ ...user, id: user.id })}
+            onChange={e => setUser({ ...user, id: e.target.value })}
           />
         </div>
         <div>
@@ -118,7 +109,7 @@ export function UserEditWindow(props?: Props) {
             {...onEnter}
             type="password"
             defaultValue={user.pass}
-            onChange={e => setUser({ ...user, pass: user.pass })}
+            onChange={e => setUser({ ...user, pass: e.target.value })}
           />
         </div>
         <div>
@@ -126,7 +117,7 @@ export function UserEditWindow(props?: Props) {
           <input
             {...onEnter}
             defaultValue={user.name}
-            onChange={e => setUser({ ...user, pass: user.name })}
+            onChange={e => setUser({ ...user, name: e.target.value })}
           />
         </div>
         <div>

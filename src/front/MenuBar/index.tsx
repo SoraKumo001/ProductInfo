@@ -2,8 +2,8 @@ import styled from "styled-components";
 import React from "react";
 import { CircleButton } from "../Parts/CircleButton";
 import { useSelector, useDispatch } from "react-redux";
-import { UserState } from "../User/UserComponent";
-import { setStoreState } from "@jswf/redux-module";
+import { setStoreState, useModule } from "@jswf/redux-module";
+import { UserModule } from "../User/UserModule";
 
 export const Root = styled.div`
   padding: 0.2em;
@@ -35,17 +35,18 @@ export const Root = styled.div`
   }
 `;
 export function MenuBar() {
-  const userInfo = useSelector((state: UserState) => state.User.userInfo);
+  const userModule = useModule(UserModule);
+  const userInfo = userModule.getState("userInfo")!;
   const dispatch = useDispatch();
   return (
     <Root>
       <div>
         <div
-          onClick={() => setStoreState(dispatch, "User", { isWindow: true })}
+          onClick={() => userModule.setState({ isWindow: true })}
         >
           {userInfo.name}
         </div>
-        <CircleButton onClick={()=>setStoreState(dispatch, "Settings", { isWindow: true })}>menu</CircleButton>
+        <CircleButton onClick={()=>setStoreState(dispatch,"Settings", { isWindow: true })}>menu</CircleButton>
       </div>
     </Root>
   );

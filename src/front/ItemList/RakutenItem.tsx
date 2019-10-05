@@ -1,7 +1,6 @@
 import * as React from "react";
-import { LocationParams, Router } from "../Router";
+import { LocationParams, Router, LocationModule } from "../Router";
 import {
-  RakutenModule,
   RakutenItem,
   RakutenGenreEntity,
   RakutenItemResult,
@@ -11,12 +10,9 @@ import {
 import { StarRating } from "@jswf/react-star-rating";
 import { Root } from "./style";
 import { LoadingImage } from "../Parts/LodingImage";
-import { ManagerState } from "../Manager.tsx";
-import { useSelector, connect } from "react-redux";
+import { ManagerState, ManagerModule } from "../Manager.tsx";
+import { mapConnect, mapModule } from "@jswf/redux-module";
 
-interface Props {
-  location: LocationParams;
-}
 interface State {
   genreId: number;
   keyword: string;
@@ -27,8 +23,7 @@ interface State {
   loading: boolean;
 }
 
-
-export class _RakutenItemList extends React.Component<Props&ManagerState, State> {
+export class _RakutenItemList extends React.Component<{}, State> {
   allPage: number = -1;
   page: number = 0;
   Root: React.RefObject<HTMLDivElement> = React.createRef();
@@ -45,7 +40,7 @@ export class _RakutenItemList extends React.Component<Props&ManagerState, State>
   render() {
     return (
       <Root ref={this.Root} onScroll={this.next.bind(this)}>
-        {this.state.loading && <LoadingImage width={96} height={96}/>}
+        {this.state.loading && <LoadingImage width={96} height={96} />}
         <div id="items">
           {this.state.items &&
             this.state.items.map((item, index) => (
@@ -81,14 +76,19 @@ export class _RakutenItemList extends React.Component<Props&ManagerState, State>
     //   genreId: parseInt(params["genreId"] || "0"),
     //   keyword: params["keyword"]
     // });
-    this.location(this.props.location);
+    const locationModule = mapModule(this.props,LocationModule);
+    const location = locationModule.getLocation()!;
+    this.location(location);
   }
 
   componentDidUpdate() {
-    this.location(this.props.location);
+    const locationModule = mapModule(this.props,LocationModule);
+    const location = locationModule.getLocation()!;
+    this.location(location);
   }
 
   public async next() {
+    const managerModule = mapModule(this.props, ManagerModule);
     this.refs[0];
     const itemArea = this.Root.current!;
     const target = itemArea.querySelector("#items") as HTMLDivElement;
@@ -116,9 +116,9 @@ export class _RakutenItemList extends React.Component<Props&ManagerState, State>
       let itemResult: RakutenItemResult | undefined;
       if (sessionValue) itemResult = JSON.parse(sessionValue);
       if (!itemResult) {
-        itemResult = await this.props.Manager.rakutenModule.getGenreItem(
-          params as ItemOptions
-        );
+        itemResult = await managerModule
+          .getRakutenModule()!
+          .getGenreItem(params as ItemOptions);
         sessionStorage.setItem(paramIndex, JSON.stringify(itemResult));
       }
       if (!itemResult) {
@@ -137,6 +137,7 @@ export class _RakutenItemList extends React.Component<Props&ManagerState, State>
     }
   }
   public location(p: { [key: string]: string }) {
+    console.log(this.props);
     const genreId = p.genre != null ? parseInt(p.genre) : 0;
     const keyword = p.keyword || "";
     const tags = p.tags || "";
@@ -154,6 +155,7 @@ export class _RakutenItemList extends React.Component<Props&ManagerState, State>
     return false;
   }
   public async loadItems() {
+    const managerModule = mapModule(this.props, ManagerModule);
     this.allPage = -1;
     this.page = 0;
     this.setState({ items: [], genre: null, tagNames: [] });
@@ -169,7 +171,9 @@ export class _RakutenItemList extends React.Component<Props&ManagerState, State>
 
     const tagNames: string[] = [];
     if (this.state.genreId !== 0) {
-      const genre = await this.props.Manager.rakutenModule.getGenre(this.state.genreId);
+      const genre = await managerModule
+        .getRakutenModule()!
+        .getGenre(this.state.genreId);
       if (genre) {
         this.setState({ genre });
         const tagMap: { [key: number]: RakutenTagEntity } = {};
@@ -201,7 +205,10 @@ export class _RakutenItemList extends React.Component<Props&ManagerState, State>
     Router.setLocation({ item: item.itemCode });
   }
 }
-function mapStateToProps(state:ManagerState) {
-  return {Manager:state.Manager};
-}
-export const RakutenItemList = connect(mapStateToProps)(_RakutenItemList);
+
+export const RakutenItemList = mapConnect(_RakutenItemList, [
+  ManagerModule,
+  LocationModule
+]);
+
+//connect(mapStateToProps)(_RakutenItemList);

@@ -1,29 +1,29 @@
 import React, { Component } from "react";
+import { ReduxModule, mapConnect, mapModule } from "@jswf/redux-module";
 
 export interface LocationParams {
   [key: string]: string;
 }
 export interface LocationParamsSrc {
-  [key: string]: string | number | boolean | null;
+  [key: string]: string | number | boolean | null | undefined;
 }
-interface Props {
-  onLocation: (loc: LocationParams) => void;
+export class LocationModule extends ReduxModule {
+  static defaultState = {};
+  public getLocation(): { [key: string]: string } {
+    return this.getState() || {};
+  }
 }
 
-export class Router extends Component<Props> {
-  private static routers = new Set<Router>();
+class _Router extends Component {
   private static lastParams: string = "";
+  private static locationModule?: LocationModule;
+  constructor(props: {}) {
+    super(props);
+    _Router.locationModule = mapModule(props, LocationModule);
+  }
   render() {
     return <>{this.props.children}</>;
   }
-  componentDidMount() {
-    Router.routers.add(this);
-    Router.goLocation();
-  }
-  componentWillUnmount() {
-    Router.routers.delete(this);
-  }
-
   public static setLocationParam(
     name: string | number,
     value: string | number | null | undefined,
@@ -42,7 +42,7 @@ export class Router extends Component<Props> {
       if (value === null || value === "") delete p[key];
       else if (typeof value === "number" || typeof value === "boolean")
         p[key] = value.toString();
-      else p[key] = value;
+      else if (value !== undefined) p[key] = value;
     }
     this.updateLocation(p, history);
   }
@@ -61,7 +61,8 @@ export class Router extends Component<Props> {
         window.history.pushState(null, "", "?" + search);
       else window.history.replaceState(null, "", "?" + search);
       this.lastParams = search;
-      Router.goLocation();
+
+      _Router.goLocation();
     }
   }
   public static getLocationParams() {
@@ -80,13 +81,15 @@ export class Router extends Component<Props> {
     return this.getLocationParams()[name];
   }
   public static goLocation() {
-    const p = Router.getLocationParams();
-    Router.lastParams = window.location.search.substring(1);
-    Router.routers.forEach(router => {
-      if (router.props.onLocation) {
-        router.props.onLocation(p);
-      }
-    });
+    const p = _Router.getLocationParams();
+    _Router.lastParams = window.location.search.substring(1);
+    const locationModule = _Router.locationModule;
+    if (locationModule) locationModule.setState({ ...p });
   }
 }
-addEventListener("popstate", () => Router.goLocation(), false);
+addEventListener("popstate", () => _Router.goLocation(), false);
+
+export const Router = mapConnect(_Router, {
+  module: LocationModule,
+  writeOnly: true
+});

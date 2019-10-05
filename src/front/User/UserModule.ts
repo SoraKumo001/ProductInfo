@@ -1,7 +1,19 @@
 import { Adapter } from "@jswf/adapter";
+import { ReduxModule } from "@jswf/redux-module";
+import { ManagerModule } from "../Manager.tsx";
 
+export interface UserState {
+  userInfo: UserInfo;
+  isLoginWindow: boolean;
+  isListWindow: boolean;
+  isEditWindow: boolean;
+  request: boolean;
+  users?: UserInfo[];
+  editInfo?: UserInfo;
+}
 export interface UserInfo {
   no: number;
+  pass?:string;
   type: string;
   id: string;
   name: string;
@@ -15,20 +27,26 @@ export interface UserInfo {
  * @class UserModule
  * @extends {BaseModule<CustomMap>}
  */
-export class UserModule  {
-  private adapter:Adapter;
+export class UserModule extends ReduxModule<UserState> {
+  static defaultState: UserState = {
+    isLoginWindow: false,
+    isListWindow: false,
+    isEditWindow: false,
+    userInfo: {
+      no: 0,
+      name: "Guest",
+      admin: false,
+      id: "Guest",
+      type: "local"
+    },
+    request: false
+  };
+  public static includes = [ManagerModule];
+  getAdapter() {
+    return this.getModule(ManagerModule).getAdapter()!;
+  }
   private userInfo?: UserInfo;
 
-  public constructor(adapter: Adapter) {
-    this.adapter = adapter;
-    const value = sessionStorage.getItem(adapter.getKeyName() + "UserInfo");
-    if (value) {
-      this.userInfo = JSON.parse(value);
-    }
-  }
-  public getAdapter(){
-    return this.adapter;
-  }
   public getUserInfo() {
     return this.userInfo;
   }
@@ -45,37 +63,46 @@ export class UserModule  {
   public async request() {
     const adapter = this.getAdapter();
     //ユーザ情報の要求
-    const user = (await adapter.exec("Users.request")) as UserInfo;
-    if (user) {
-      this.userInfo = user;
+    const userInfo = (await adapter.exec("Users.request")) as UserInfo;
+    if (userInfo) {
+      this.userInfo = userInfo;
     }
-  //  this.callEvent("loginUser", user);
-    return user;
+    this.setState({ userInfo });
+    return userInfo;
   }
-  public async login(userId: string, userPass: string, local: boolean, keep: boolean) {
+  public async login(
+    userId: string,
+    userPass: string,
+    local: boolean,
+    keep: boolean
+  ) {
     const adapter = this.getAdapter();
-    const user = (await adapter.exec(
+    const userInfo = (await adapter.exec(
       "Users.login",
       userId,
       userPass,
       local,
       keep
     )) as UserInfo;
-    if (user) {
-      this.userInfo = user;
+    if (userInfo) {
+      this.userInfo = userInfo;
       sessionStorage.setItem(
         adapter.getKeyName() + "UserInfo",
-        JSON.stringify(user)
+        JSON.stringify(userInfo)
       );
     }
-  //  this.callEvent("loginUser", user);
-    return user;
+    this.setState({
+      userInfo
+    });
+    return userInfo;
   }
   public async logout() {
     const adapter = this.getAdapter();
-    const user = (await adapter.exec("Users.logout")) as UserInfo;
-  //  this.callEvent("loginUser", user);
-    return user;
+    const userInfo = (await adapter.exec("Users.logout")) as UserInfo;
+    this.setState({
+      userInfo
+    });
+    return userInfo;
   }
   public async setUser(
     no: number,
@@ -85,20 +112,20 @@ export class UserModule  {
     local?: boolean
   ) {
     const adapter = this.getAdapter();
-    const info = await adapter.exec(
+    const info = (await adapter.exec(
       "Users.setUser",
       no,
       userId,
       userName,
       userPass,
       local
-    ) as Promise<UserInfo>;
-//    this.callEvent("updateUser", info);
+    )) as Promise<UserInfo>;
+    //    this.callEvent("updateUser", info);
 
     //暫定管理者なら再ログイン
-    // if (!this.userInfo || this.userInfo.no === 0) {
-    //   this.request();
-    // }
+    if (!this.userInfo || this.userInfo.no === 0) {
+      this.request();
+    }
     return info;
   }
   public delUser(userNo: number, local: boolean) {
@@ -106,12 +133,17 @@ export class UserModule  {
     return (adapter.exec("Users.delUser", userNo, local) as Promise<
       boolean | null
     >).then(result => {
-   //   this.callEvent("updateUser", { no: userNo });
+      //   this.callEvent("updateUser", { no: userNo });
       return result;
     });
   }
-  public getUsers(local: boolean) {
+  public async getUsers(local: boolean) {
     const adapter = this.getAdapter();
-    return adapter.exec("Users.getUsers", local) as Promise<UserInfo[]>;
+    const users = (await adapter.exec("Users.getUsers", local)) as Promise<
+      UserInfo[]
+    >;
+    if (users) {
+      this.setState({ users });
+    }
   }
 }

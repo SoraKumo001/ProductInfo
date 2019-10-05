@@ -3,14 +3,20 @@ import { Adapter } from "@jswf/adapter";
 import { RakutenModule } from "../Module/RakutenModule";
 import { useDispatch } from "react-redux";
 import React from "react";
-import { setStoreState } from "@jswf/redux-module";
+import { setStoreState, ReduxModule, useModule } from "@jswf/redux-module";
 import { useInit } from "../Parts/HooksLib";
 
 export interface ManagerState {
-  Manager: {
-    adapter: Adapter;
-    rakutenModule: RakutenModule;
-  };
+  adapter: Adapter;
+  rakutenModule: RakutenModule;
+}
+export class ManagerModule extends ReduxModule<ManagerState> {
+  public getAdapter(){
+    return this.getState("adapter");
+  }
+  public getRakutenModule(){
+    return this.getState("rakutenModule");
+  }
 }
 
 interface Props {
@@ -22,11 +28,11 @@ Manager.defaultProps = {
   adapterPath: "./"
 };
 export function Manager(props: Props) {
-  const dispatch = useDispatch();
+  const managerModule = useModule(ManagerModule);
   useInit(() => {
     const adapter = new Adapter(props.adapterPath, props.adapterName);
     const rakutenModule = new RakutenModule(adapter);
-    setStoreState(dispatch, "Manager", { adapter, rakutenModule });
+    managerModule.setState({ adapter, rakutenModule });
   });
   return <>{props.children}</>;
 }

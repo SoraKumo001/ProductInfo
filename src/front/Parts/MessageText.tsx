@@ -50,18 +50,16 @@ interface Props {
   children?: ReactNode;
 }
 export interface MessageState {
-  values:{
     msg: ReactNode;
-  }
 }
 export class MessageModule extends ReduxModule<MessageState> {
-  static defaultState:MessageState = {values:{msg:""}}
+  static defaultState:MessageState = {msg:""}
   setMessage(message: ReactNode) {
    // this.setState({ values:{msg: message }});
-    this.setState(message,"values","msg");
+    this.setState(message,"msg");
   }
   getMessage(): ReactNode {
-    return this.getState()!.values.msg;
+    return this.getState()!.msg;
   }
 }
 

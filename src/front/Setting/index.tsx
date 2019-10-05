@@ -11,20 +11,22 @@ import { Adapter } from "@jswf/adapter";
 import { CircleButton } from "../Parts/CircleButton";
 import { FlexParent } from "../Parts/FlexParent";
 import { useDispatch, useSelector } from "react-redux";
-import { ManagerState } from "../Manager.tsx";
-import { UserState } from "../User/UserComponent";
-import { setStoreState } from "@jswf/redux-module";
+import { ManagerState, ManagerModule } from "../Manager.tsx";
+import { setStoreState, useModule } from "@jswf/redux-module";
+import { UserModule } from "../User/UserModule";
+import { UserListView } from "../User/UserListView";
 
-export interface SettingViewProps{
-    adapter: Adapter;
-    setSave:(proc?:() => void)=>void;
+export interface SettingViewProps {
+  adapter: Adapter;
+  setSave: (proc?: () => void) => void;
 }
 
 type SettingFunc = (props: SettingViewProps) => JSX.Element;
 
 const settings: { label: string; view?: SettingFunc }[] = [
   { label: "サイト設定" },
-  { label: "DB設定", view: DBSettingView }
+  { label: "DB設定", view: DBSettingView },
+  { label: "User管理", view: UserListView }
 ];
 
 export function AppSettingWindow() {
@@ -34,10 +36,12 @@ export function AppSettingWindow() {
 
   const [saveCallback, setSaveCallback] = useState<() => void>();
   const dispatch = useDispatch();
-  const user = useSelector((state: UserState) => state.User);
+  const userModule = useModule(UserModule);
   const state = useSelector((state: SettingState & ManagerState) => state);
+  const managerModule = useModule(ManagerModule);
   if (!state.Settings || !state.Settings.isWindow) return <></>;
-  const adapter = state.Manager.adapter;
+  const user = userModule.getState()!;
+  const adapter = managerModule.getAdapter();
 
   return (
     <JSWindow
@@ -45,7 +49,7 @@ export function AppSettingWindow() {
       width={600}
       height={400}
       onUpdate={p => {
-        p.windowState === WindowState.HIDE &&
+        p.realWindowState === WindowState.HIDE &&
           setStoreState(dispatch, "Settings", { isWindow: false });
       }}
     >
@@ -91,7 +95,7 @@ export function AppSettingWindow() {
       </SplitView>
     </JSWindow>
   );
-  function setSave(proc?:()=>void){
-    setSaveCallback(()=>proc);
+  function setSave(proc?: () => void) {
+    setSaveCallback(() => proc);
   }
 }

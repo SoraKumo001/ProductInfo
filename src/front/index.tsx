@@ -8,14 +8,10 @@ import { createStore, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
 import { SplitView } from "@jswf/react";
 import { GenreTree } from "./GenreTree";
-import { Router, LocationParams } from "./Router";
+import { Router } from "./Router";
 import { Manager } from "./Manager.tsx";
-import { Adapter } from "@jswf/adapter";
-import { RakutenModule } from "./Module/RakutenModule";
 import { RakutenItemList } from "./ItemList/RakutenItem";
 import { MenuBar } from "./MenuBar";
-import { LoadingImage } from "./Parts/LodingImage";
-import { SettingValue } from "./Parts/SettingView";
 import { AppSettingWindow } from "./Setting";
 
 
@@ -24,18 +20,15 @@ import {ModuleReducer} from "@jswf/redux-module"
 import { UserComponent } from "./User/UserComponent";
 import { Login } from "./User/Login";
 import { MessageText } from "./Parts/MessageText";
-import { UserListView } from "./User/UserListView";
-import { UserEditWindow } from "./User/UserEditWindow";
-
+import { RakutenSearch } from "./SearchWindow/RakutenSearch";
 
 const store = createStore(ModuleReducer,applyMiddleware(logger));
 
 function App() {
-  const [location, setLocation] = useState<LocationParams>({});
   return (
     <Manager>
       <UserComponent>
-        <Router onLocation={location => setLocation(location)}>
+        <Router>
           <SplitView pos={300}>
             <div
               style={{
@@ -46,21 +39,21 @@ function App() {
                 width: "100%"
               }}
             >
+              <GenreTree/>
               <MenuBar />
-              {/* {rakutenModule && (
-              <GenreTree rakutenModule={rakutenModule} location={location} />
-            )} */}
+
+
             </div>
             <>
-              <RakutenItemList location={location} />)
+              <RakutenItemList/>)
             </>
           </SplitView>
           <AppSettingWindow />
           <Login />
         </Router>
-        <UserListView/><UserEditWindow/>
       </UserComponent>
       <MessageText>メッセージ</MessageText>
+      <RakutenSearch/>
     </Manager>
   );
 }
