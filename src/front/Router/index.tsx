@@ -20,6 +20,7 @@ class _Router extends Component {
   constructor(props: {}) {
     super(props);
     _Router.locationModule = mapModule(props, LocationModule);
+    _Router.goLocation();
   }
   render() {
     return <>{this.props.children}</>;

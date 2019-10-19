@@ -1,4 +1,4 @@
-import * as amf from "active-module-framework";
+import * as amf from "@jswf/rfs";
 import { AppEntity, AppRepository } from "./AppEntity";
 import { Users } from "../User/UsersModule";
 import { RemoteDB } from "../RemoteDBModule";

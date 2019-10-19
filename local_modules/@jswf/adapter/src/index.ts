@@ -343,7 +343,7 @@ export class Adapter {
     req.setRequestHeader("Content-Type", "application/json");
     if (headers) {
       for (let index in headers) {
-        const value = sessionStorage.getItem(headers[index]);
+        const value = headers[index];
         if (value) req.setRequestHeader(index, value);
       }
     }
@@ -384,7 +384,7 @@ export class Adapter {
     req.setRequestHeader("Content-Type", "application/json");
     if (headers) {
       for (let index in headers) {
-        const value = sessionStorage.getItem(headers[index]);
+        const value = headers[index];
         if (value) req.setRequestHeader(index, value);
       }
     }

@@ -11,10 +11,10 @@ import { Adapter } from "@jswf/adapter";
 import { CircleButton } from "../Parts/CircleButton";
 import { FlexParent } from "../Parts/FlexParent";
 import { useDispatch, useSelector } from "react-redux";
-import { ManagerState, ManagerModule } from "../Manager.tsx";
 import { setStoreState, useModule } from "@jswf/redux-module";
 import { UserModule } from "../User/UserModule";
 import { UserListView } from "../User/UserListView";
+import { ManagerState, ManagerModule } from "../Manager.tsx/Module";
 
 export interface SettingViewProps {
   adapter: Adapter;

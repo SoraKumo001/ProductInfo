@@ -1,17 +1,32 @@
 {
   "name": "@jswf/adapter",
-  "version": "1.0.0",
-  "description": "Ajax adapter",
+  "version": "0.0.3",
+  "description": "Ajax Adapter",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "npx tsc -b src",
+    "watch": "npx tsc -b src -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "ajax"
+  ],
+  "author": "SoraKumo",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "~3.5.3"
-  }
+    "typescript": "~3.6.3"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JavaScript-WindowFramework/jswf-adapter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JavaScript-WindowFramework/jswf-adapter/issues"
+  },
+  "homepage": "https://ttis.croud.jp/"
 }

@@ -19,12 +19,12 @@ const Root = styled.div`
 `;
 
 interface Props {
-  style?: React.CSSProperties;       //Owner CSS
-  backStyle?: React.CSSProperties;   //Background Text CSS
-  foreStyle?: React.CSSProperties;   //Foreground Text CSS
-  star?: string;                     //Star charactor '★'
-  max: number;                       //Max Star value
-  value: number;                     //Current Star value
+  style?: React.CSSProperties; //Owner CSS
+  backStyle?: React.CSSProperties; //Background Text CSS
+  foreStyle?: React.CSSProperties; //Foreground Text CSS
+  star?: string; //Star charactor '★'
+  max: number; //Max Star value
+  value: number; //Current Star value
   onValue?: (value: number) => void; //Change current value Event
 }
 export function StarRating(props: Props) {
@@ -35,9 +35,9 @@ export function StarRating(props: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   const [width, setWidth] = useState(0);
-  const shadowColor = "rgb(30,30,30)";
+  const shadowColor = "rgb(100,100,100)";
   const foreStyle: React.CSSProperties = {
-    color: "yellow",
+    color: "#FFFF22",
     pointerEvents: "none",
     WebkitTextStroke: `1px ${shadowColor}`
   };

@@ -1,4 +1,5 @@
 import { Adapter } from "@jswf/adapter";
+import { ReduxModule } from "@jswf/redux-module";
 
 export interface RakutenTagEntity {
   id: number;

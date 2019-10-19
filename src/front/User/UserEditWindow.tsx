@@ -1,6 +1,5 @@
 import { JSWindow, WindowState } from "@jswf/react";
 import React, { useState, useMemo, useEffect } from "react";
-import { ManagerModule } from "../Manager.tsx";
 import { UserModule, UserInfo } from "./UserModule";
 import { CircleButton } from "../Parts/CircleButton";
 import styled from "styled-components";

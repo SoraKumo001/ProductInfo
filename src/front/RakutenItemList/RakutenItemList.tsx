@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LocationParams, Router, LocationModule } from "../Router";
+import { LocationModule } from "../Router";
 import {
   RakutenItem,
   RakutenGenreEntity,
@@ -7,11 +7,11 @@ import {
   ItemOptions,
   RakutenTagEntity
 } from "../Module/RakutenModule";
-import { StarRating } from "@jswf/react-star-rating";
-import { Root } from "./style";
+import { Root } from "./RakutenItemList.style";
 import { LoadingImage } from "../Parts/LodingImage";
-import { ManagerState, ManagerModule } from "../Manager.tsx";
 import { mapConnect, mapModule } from "@jswf/redux-module";
+import { RakutenItemView } from "./RakutenItem";
+import { ManagerModule } from "../Manager.tsx/Module";
 
 interface State {
   genreId: number;
@@ -38,51 +38,25 @@ export class _RakutenItemList extends React.Component<{}, State> {
   };
 
   render() {
+    const items = this.state.items || [];
     return (
       <Root ref={this.Root} onScroll={this.next.bind(this)}>
         {this.state.loading && <LoadingImage width={96} height={96} />}
         <div id="items">
-          {this.state.items &&
-            this.state.items.map((item, index) => (
-              <div key={index} onClick={() => this.click(item)}>
-                <div id="img">
-                  <img src={item.mediumImageUrls[0]} />
-                </div>
-                <div id="info" title={item.itemName}>
-                  {item.itemName}
-                </div>
-                <div id="data">
-                  <div id="price">{item.itemPrice.toLocaleString()}円</div>
-                  <div id="rate">
-                    {item.reviewAverage}
-                    <StarRating
-                      max={5}
-                      value={item.reviewAverage}
-                      backStyle={{ color: "black" }}
-                    />
-                    ({item.reviewCount})
-                  </div>
-                </div>
-              </div>
-            ))}
+          {items.map((item) => <RakutenItemView key={item.itemCode} item={item}/>)}
         </div>
       </Root>
     );
   }
 
   public componentDidMount() {
-    // const params = this.props.location;
-    // this.setState({
-    //   genreId: parseInt(params["genreId"] || "0"),
-    //   keyword: params["keyword"]
-    // });
-    const locationModule = mapModule(this.props,LocationModule);
+    const locationModule = mapModule(this.props, LocationModule);
     const location = locationModule.getLocation()!;
     this.location(location);
   }
 
   componentDidUpdate() {
-    const locationModule = mapModule(this.props,LocationModule);
+    const locationModule = mapModule(this.props, LocationModule);
     const location = locationModule.getLocation()!;
     this.location(location);
   }
@@ -137,7 +111,6 @@ export class _RakutenItemList extends React.Component<{}, State> {
     }
   }
   public location(p: { [key: string]: string }) {
-    console.log(this.props);
     const genreId = p.genre != null ? parseInt(p.genre) : 0;
     const keyword = p.keyword || "";
     const tags = p.tags || "";
@@ -201,9 +174,7 @@ export class _RakutenItemList extends React.Component<{}, State> {
     return true;
   }
 
-  click(item: RakutenItem) {
-    Router.setLocation({ item: item.itemCode });
-  }
+
 }
 
 export const RakutenItemList = mapConnect(_RakutenItemList, [

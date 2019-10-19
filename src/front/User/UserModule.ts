@@ -1,6 +1,5 @@
-import { Adapter } from "@jswf/adapter";
 import { ReduxModule } from "@jswf/redux-module";
-import { ManagerModule } from "../Manager.tsx";
+import { ManagerModule } from "../Manager.tsx/Module";
 
 export interface UserState {
   userInfo: UserInfo;

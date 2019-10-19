@@ -3,26 +3,26 @@ import "core-js/features/promise";
 
 import React, { ReactElement, useEffect, useState } from "react";
 import * as ReactDOM from "react-dom";
-import logger from 'redux-logger'
+import logger from "redux-logger";
 import { createStore, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
 import { SplitView } from "@jswf/react";
-import { GenreTree } from "./GenreTree";
+import { GenreTree } from "./RakutenGenreTree";
 import { Router } from "./Router";
 import { Manager } from "./Manager.tsx";
-import { RakutenItemList } from "./ItemList/RakutenItem";
+import { RakutenItemList } from "./RakutenItemList/RakutenItemList";
 import { MenuBar } from "./MenuBar";
 import { AppSettingWindow } from "./Setting";
 
-
-
-import {ModuleReducer} from "@jswf/redux-module"
+import { ModuleReducer } from "@jswf/redux-module";
 import { UserComponent } from "./User/UserComponent";
 import { Login } from "./User/Login";
 import { MessageText } from "./Parts/MessageText";
 import { RakutenSearch } from "./SearchWindow/RakutenSearch";
+import { FlexParent } from "./Parts/FlexParent";
+import { StatusMenu } from "./StatusMenu";
 
-const store = createStore(ModuleReducer,applyMiddleware(logger));
+const store = createStore(ModuleReducer, applyMiddleware(logger));
 
 function App() {
   return (
@@ -39,21 +39,20 @@ function App() {
                 width: "100%"
               }}
             >
-              <GenreTree/>
+              { <GenreTree /> }
               <MenuBar />
-
-
             </div>
-            <>
-              <RakutenItemList/>)
-            </>
+            <FlexParent>
+              <StatusMenu/>
+              <RakutenItemList />
+            </FlexParent>
           </SplitView>
           <AppSettingWindow />
           <Login />
         </Router>
       </UserComponent>
       <MessageText>メッセージ</MessageText>
-      <RakutenSearch/>
+      <RakutenSearch />
     </Manager>
   );
 }

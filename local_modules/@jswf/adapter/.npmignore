@@ -2,7 +2,3 @@ package-lock.json
 node_modules
 *.tsbuildinfo
 /src/
-/doc/
-/dist-jwf/
-!/bin/*
-!/resource/*
