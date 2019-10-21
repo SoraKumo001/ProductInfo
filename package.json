@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node --preserve-symlinks dist/app/index.js",
     "watch:all": "npx concurrently \"npm:watch:front\" \"npm:watch:back\" \"npm:start\"",
-    "build:all": "npm run build:rfs && npm run build:back && npm run build:react && npm run build:manager && npm run build:front",
+    "build:all": "npm run build:rfs && npm run build:back && npm run build:react && npm run build:manager && npm run build:adapter && npm run build:redux-module && npm run build:front",
     "watch:front": "npx webpack -b -w --mode development",
     "build:front": "npx webpack -b",
     "watch:back": "npx tsc -b -w ",
@@ -15,6 +15,10 @@
     "watch:react": "npx tsc -b -w local_modules/@jswf/react/src/",
     "build:rfs": "npx tsc -b local_modules/@jswf/rfs/src/",
     "watch:rfs": "npx tsc -b -w local_modules/@jswf/rfs/src/",
+    "build:redux-module": "npx tsc -b local_modules/@jswf/redux-module/src/",
+    "watch:redux-module": "npx tsc -b -w local_modules/@jswf/redux-module/src/",
+    "build:adapter": "npx tsc -b local_modules/@jswf/adapter/src/",
+    "watch:adapter": "npx tsc -b -w local_modules/@jswf/adapter/src/",
     "build:manager": "npx tsc -b local_modules/@jswf/manager/src"
   },
   "keywords": [],
