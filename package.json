@@ -6,15 +6,15 @@
   "scripts": {
     "start": "node --preserve-symlinks dist/app/index.js",
     "watch:all": "npx concurrently \"npm:watch:front\" \"npm:watch:back\" \"npm:start\"",
-    "build:all": "npm run build:amf && npm run build:back && npm run build:jwf && npm run build:manager && npm run build:front",
+    "build:all": "npm run build:rfs && npm run build:back && npm run build:jwf && npm run build:manager && npm run build:front",
     "watch:front": "npx webpack -b -w --mode development",
     "build:front": "npx webpack -b",
     "watch:back": "npx tsc -b -w ",
     "build:back": "npx tsc -b ",
     "watch:jwf": "npx webpack -b -w --config local_modules/@jswf/core/src/webpack.config.js",
     "build:jwf": "npx tsc -b  local_modules/@jswf/core/src",
-    "build:amf": "npx tsc -b local_modules/active-module-framework/src/",
-    "watch:amf": "npx tsc -b -w local_modules/active-module-framework/src/",
+    "build:rfs": "npx tsc -b local_modules/@jswf/rfs/src/",
+    "watch:rfs": "npx tsc -b -w local_modules/@jswf/rfs/src/",
     "build:manager": "npx tsc -b local_modules/@jswf/manager/src"
   },
   "keywords": [],
