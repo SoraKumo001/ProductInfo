@@ -1,6 +1,6 @@
 module.exports = {
 	apps: [{
-		name: "amf-test",
+		name: "product-info",
 		script: "./dist/app/index.js",
 		watch: ["./dist/app"],
 		instances: 1,

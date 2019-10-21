@@ -22,6 +22,7 @@
 import { Manager } from "@jswf/rfs";
 import * as path from "path";
 import * as express from "express";
+import * as fs from "fs";
 import { HtmlCreater } from "./HtmlCreater";
 
 //管理用マネージャクラスの作成
@@ -62,4 +63,8 @@ app.use(express.static(path.resolve(__dirname, "../public")));
 
 //待ち受けポート設定
 if (process.platform === "win32") app.listen(8080);
-else app.listen("dist/sock/app.sock");
+else {
+  const path = "dist/sock/app.sock";
+  app.listen(path);
+  fs.chmodSync(path, "666");
+}
