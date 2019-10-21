@@ -56,10 +56,10 @@ const browserSyncConfigurations = {
   files: path.resolve(__dirname, "../public")
 };
 app.use(connectBrowserSync(browserSync(browserSyncConfigurations)));
-app.get('/',htmlCreater.output.bind(htmlCreater));
+app.get("/", htmlCreater.output.bind(htmlCreater));
 //静的ファイルの設定(index.jsからの相対パス)
 app.use(express.static(path.resolve(__dirname, "../public")));
 
-
 //待ち受けポート設定
-app.listen(8080);
+if (process.platform === "win32") app.listen(8080);
+else app.listen("dist/sock/app.sock");

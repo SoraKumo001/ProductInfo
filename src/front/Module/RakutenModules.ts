@@ -7,7 +7,7 @@ interface State {
   entitys: { [key: number]: RakutenGenreEntity };
 }
 
-export class RGenreTree extends ReduxModule<State> {
+export class RGenreTreeModule extends ReduxModule<State> {
   static includes = [ManagerModule, MessageModule];
   static defaultState: State = { entitys: {} };
 
@@ -25,8 +25,16 @@ export class RGenreTree extends ReduxModule<State> {
       return;
     }
     const src = this.getState("entitys")!;
-    const entitys = RGenreTree.setEntity({ ...src }, genre);
-    this.setState(entitys);
+    const entitys = RGenreTreeModule.setEntity({ ...src }, genre);
+    if (genre.parentId !== null) {
+      const parent = entitys[genre.parentId];
+      if (parent) {
+        parent.children = parent.children.map(entity =>
+          entity.id === id ? genre : entity
+        );
+      }
+    }
+    this.setState({ entitys });
   }
   private static setEntity(
     target: { [key: number]: RakutenGenreEntity },
@@ -37,7 +45,10 @@ export class RGenreTree extends ReduxModule<State> {
       entity.children.forEach(entity => this.setEntity(target, entity));
     return target;
   }
-  getRoot():RakutenGenreEntity|undefined{
+  getRoot(): RakutenGenreEntity | undefined {
     return this.getState("entitys")![0];
+  }
+  getEntitys(): { [key: number]: RakutenGenreEntity } {
+    return this.getState("entitys")!;
   }
 }
