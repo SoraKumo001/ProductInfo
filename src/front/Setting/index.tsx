@@ -15,6 +15,7 @@ import { setStoreState, useModule } from "@jswf/redux-module";
 import { UserModule } from "../User/UserModule";
 import { UserListView } from "../User/UserListView";
 import { ManagerState, ManagerModule } from "../Manager.tsx/Module";
+import { BaseSettingView } from "./Base/BaseSettingView";
 
 export interface SettingViewProps {
   adapter: Adapter;
@@ -24,7 +25,7 @@ export interface SettingViewProps {
 type SettingFunc = (props: SettingViewProps) => JSX.Element;
 
 const settings: { label: string; view?: SettingFunc }[] = [
-  { label: "サイト設定" },
+  { label: "サイト設定",view: BaseSettingView },
   { label: "DB設定", view: DBSettingView },
   { label: "User管理", view: UserListView }
 ];

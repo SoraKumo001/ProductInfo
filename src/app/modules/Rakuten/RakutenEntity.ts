@@ -2,6 +2,13 @@ import * as typeorm from "typeorm";
 import { RakutenItem } from "./RakutenReader";
 
 @typeorm.Entity()
+export class RakutenOptionEntity{
+	@typeorm.PrimaryColumn()
+	name:string;
+	@typeorm.Column()
+	value:string;
+}
+@typeorm.Entity()
 export class RakutenShopEntity{
 	@typeorm.PrimaryColumn()
 	id:number;

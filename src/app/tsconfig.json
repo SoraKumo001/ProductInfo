@@ -12,5 +12,8 @@
     "moduleResolution": "node",
     "types": []
 
-  }
+  },
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -8,7 +8,7 @@ class DatabaseConfigEntity extends typeorm.BaseEntity {
   id?: number;
   @typeorm.Column()
   REMOTEDB_HOST?: string;
-  @typeorm.Column({default:5432})
+  @typeorm.Column({ default: 5432 })
   REMOTEDB_PORT?: number;
   @typeorm.Column()
   REMOTEDB_DATABASE?: string;
@@ -30,9 +30,9 @@ export interface CustomMap extends amf.ModuleMap {
   disconnect: [];
 }
 export class RemoteDB<T extends CustomMap = CustomMap> extends amf.Module<T> {
-  private entities: (( new () => T)|Function)[] = [];
+  private entities: ((new () => T) | Function)[] = [];
   private localRepository?: typeorm.Repository<DatabaseConfigEntity>;
-  public addEntity<T>(model:( new () => T)|Function) {
+  public addEntity<T>(model: (new () => T) | Function) {
     this.entities.push(model);
   }
   public getRepository<T>(model: new () => T): typeorm.Repository<T> {
@@ -52,15 +52,14 @@ export class RemoteDB<T extends CustomMap = CustomMap> extends amf.Module<T> {
   public getConnection() {
     return this.connection;
   }
-  public isConnect(){
+  public isConnect() {
     return this.connection && this.connection.isConnected;
   }
   public async onCreateModule() {
     this.getLocalDB().addEntity(DatabaseConfigEntity);
-    this.getManager().addEventListener("message",(e)=>{
-      if(e === "connect")
-        this.connect();
-    })
+    this.getManager().addEventListener("message", e => {
+      if (e === "connect") this.connect();
+    });
     return true;
   }
   public async onCreatedModule() {
@@ -70,7 +69,7 @@ export class RemoteDB<T extends CustomMap = CustomMap> extends amf.Module<T> {
     return true;
   }
   public async connect() {
-    if (await this.open().catch(()=>false)) {
+    if (await this.open().catch(() => false)) {
       this.output("DBの接続完了");
       return true;
     }
@@ -160,13 +159,13 @@ export class RemoteDB<T extends CustomMap = CustomMap> extends amf.Module<T> {
     );
     return result ? result[0] : null;
   }
-  public async enter(proc:()=>void){
-    if(this.isConnect()){
+  public async enter(proc: () => void) {
+    if (this.isConnect()) {
       proc();
-    }else{
-      this.addEventListener("connect",()=>{
+    } else {
+      this.addEventListener("connect", () => {
         proc();
-      })
+      });
     }
   }
 }

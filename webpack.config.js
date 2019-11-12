@@ -21,7 +21,6 @@ const config = {
       {
         test: /\.(js|jsx)$/,
         use: ["source-map-loader"],
-        exclude: /node_modules/,
         enforce: "pre"
       },
       {
@@ -67,8 +66,8 @@ const config = {
     host: "localhost"
   }
 };
-if (config.mode === "development") {
-}
+// if (config.mode === "development") {
+// }
 config.devtool = "source-map";
 
 module.exports = config;

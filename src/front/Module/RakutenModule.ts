@@ -106,4 +106,10 @@ export class RakutenModule  {
   async getItem(itemCode: string): Promise<RakutenItem | undefined> {
     return this.adapter.exec("RakutenModule.getItem", itemCode);
   }
+  async setApiKey(apiKey:string):Promise<boolean>{
+    return this.adapter.exec("RakutenModule.setApiKey", apiKey);
+  }
+  async getApiKey(){
+    return this.adapter.exec("RakutenModule.getApiKey");
+  }
 }

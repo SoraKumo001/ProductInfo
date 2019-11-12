@@ -1,12 +1,12 @@
 import { ReduxModule } from "@jswf/redux-module";
-import { RakutenGenreEntity, RakutenModule } from "./RakutenModule";
+import { RakutenGenreEntity } from "./RakutenModule";
 import { ManagerModule } from "../Manager.tsx/Module";
 import { MessageModule } from "../Parts/MessageText";
 
-interface State {
+export interface State {
+  apiKey?: string;
   entitys: { [key: number]: RakutenGenreEntity };
 }
-
 export class RGenreTreeModule extends ReduxModule<State> {
   static includes = [ManagerModule, MessageModule];
   static defaultState: State = { entitys: {} };
@@ -51,4 +51,5 @@ export class RGenreTreeModule extends ReduxModule<State> {
   getEntitys(): { [key: number]: RakutenGenreEntity } {
     return this.getState("entitys")!;
   }
+
 }

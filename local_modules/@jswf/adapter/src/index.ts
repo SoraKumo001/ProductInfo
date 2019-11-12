@@ -269,13 +269,14 @@ export class Adapter {
     headers?: { [key: string]: string },
     binary?: boolean
   ): Promise<unknown> {
-    return new Promise((resolve): void => {
+    return new Promise((resolve, reject): void => {
       if (binary) {
         Adapter.sendJsonToBinary(
           url,
           data,
-          (value: unknown): void => {
-            resolve(value);
+          (value, status): void => {
+            if (status === 200) resolve(value);
+            else reject({ value, status });
           },
           headers
         );
@@ -283,15 +284,76 @@ export class Adapter {
         Adapter.sendJson(
           url,
           data,
-          (value: unknown): void => {
-            resolve(value);
+          (value, status): void => {
+            if (status === 200) resolve(value);
+            else reject({ value, status });
           },
           headers
         );
       }
     });
   }
+  public static sendParamsAsync(
+    method: string,
+    url: string,
+    getParam?: { [key: string]: string | number | boolean },
+    postParam?: { [key: string]: string | number | boolean },
+    headers?: { [key: string]: string }
+  ) {
+    return new Promise((resolve, reject) => {
+      const req = new XMLHttpRequest();
 
+      const getString = getParam
+        ? Object.entries(getParam).reduce((a, [name, value]) => {
+            return (
+              (a.length ? a + "&" : "") +
+              (encodeURIComponent(name) +
+                "=" +
+                encodeURIComponent(value.toString()))
+            );
+          }, "")
+        : "";
+      const postString = postParam
+        ? Object.entries(postParam).reduce((a, [name, value]) => {
+            return (
+              (a.length ? a + "&" : "") +
+              (encodeURIComponent(name) +
+                "=" +
+                encodeURIComponent(value.toString()))
+            );
+          }, "")
+        : "";
+
+      req.onreadystatechange = function(): void {
+        if (req.readyState == 4) {
+          if (req.status === 200) {
+            if (typeof req.response === "string") {
+              const value = req.response
+                .split("&")
+                .reduce<{ [key: string]: string }>((a, b) => {
+                  const [key, value] = b.split("=");
+                  a[key] = value;
+                  return a;
+                }, {});
+              resolve(value);
+            }
+          } else reject(req);
+        }
+      };
+      req.open(
+        method,
+        url + (url.indexOf("?") === -1 ? "?" : "&") + getString,
+        true
+      );
+      if (headers) {
+        for (let index in headers) {
+          const value = headers[index];
+          if (value) req.setRequestHeader(index, value);
+        }
+      }
+      req.send(postString);
+    });
+  }
   /**
    *Jsonデータの送受信
    *
@@ -307,7 +369,7 @@ export class Adapter {
   private static sendJson(
     url: string,
     data: unknown,
-    proc: Function,
+    proc: (value: unknown, status: number) => void,
     headers?: { [key: string]: string }
   ): void {
     const req = new XMLHttpRequest();
@@ -331,11 +393,11 @@ export class Adapter {
               //JSON変換の仕分け
               obj = JSON.parse(req.response);
             else obj = req.response;
+            proc(obj, req.status);
           } catch (e) {
-            proc(null);
+            proc(e, req.status);
             return;
           }
-          proc(obj);
         }
       };
     }
@@ -365,21 +427,17 @@ export class Adapter {
   private static sendJsonToBinary(
     url: string,
     data: unknown,
-    proc: Function,
+    proc: (value: unknown, status: number) => void,
     headers?: { [key: string]: string }
   ): void {
     const req = new XMLHttpRequest();
     req.responseType = "blob";
-    if (proc == null) {
-      req.open("POST", url, false);
-      return JSON.parse(req.responseText);
-    } else {
-      req.onreadystatechange = function(): void {
-        if (req.readyState == 4) {
-          proc(req.response);
-        }
-      };
-    }
+    req.onreadystatechange = function(): void {
+      if (req.readyState == 4) {
+        proc(req.response, req.status);
+      }
+    };
+
     req.open("POST", url, true);
     req.setRequestHeader("Content-Type", "application/json");
     if (headers) {

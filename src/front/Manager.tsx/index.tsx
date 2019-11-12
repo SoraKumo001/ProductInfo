@@ -1,9 +1,8 @@
-import { ReactNode, useMemo } from "react";
+import { ReactNode } from "react";
 import { Adapter } from "@jswf/adapter";
 import { RakutenModule } from "../Module/RakutenModule";
-import { useDispatch } from "react-redux";
 import React from "react";
-import { setStoreState, useModule } from "@jswf/redux-module";
+import { useModule } from "@jswf/redux-module";
 import { useInit } from "../Parts/HooksLib";
 import { ManagerModule } from "./Module";
 

@@ -5,15 +5,16 @@ import {
   RakutenTagEntity,
   RakutenTagGroupEntity,
   RakutenItemEntity,
-  RakutenShopEntity
+  RakutenShopEntity,
+  RakutenOptionEntity
 } from "./RakutenEntity";
 import { RemoteDB } from "../RemoteDBModule";
 import { ExtendRepository } from "../ExtendRepository";
 import { RakutenReader, ItemOptions } from "./RakutenReader";
-
-const RAKUTEN_KEY = "1034797542507942346";
+import { Users } from "../User/UsersModule";
 
 export class RakutenModule extends amf.Module {
+  private optionRepository?: ExtendRepository<RakutenOptionEntity>;
   private genreRepository?: ExtendRepository<RakutenGenreEntity>;
   private itemRepository?: ExtendRepository<RakutenItemEntity>;
   private tagRepository?: ExtendRepository<RakutenTagEntity>;
@@ -21,15 +22,21 @@ export class RakutenModule extends amf.Module {
   private shopRepository?: ExtendRepository<RakutenShopEntity>;
   private reading?: boolean;
   private readCount?: number;
+  private apiKey?: string;
   public async onCreateModule(): Promise<boolean> {
     //データベースの初期化
     const remoteDB = await this.getModule(RemoteDB);
+    remoteDB.addEntity(RakutenOptionEntity);
     remoteDB.addEntity(RakutenTagGroupEntity);
     remoteDB.addEntity(RakutenTagEntity);
     remoteDB.addEntity(RakutenGenreEntity);
     remoteDB.addEntity(RakutenItemEntity);
     remoteDB.addEntity(RakutenShopEntity);
     remoteDB.addEventListener("connect", connect => {
+      this.optionRepository = new ExtendRepository(
+        connect,
+        RakutenOptionEntity
+      );
       this.genreRepository = new ExtendRepository(connect, RakutenGenreEntity);
       this.itemRepository = new ExtendRepository(connect, RakutenItemEntity);
       this.tagRepository = new ExtendRepository(connect, RakutenTagEntity);
@@ -38,6 +45,7 @@ export class RakutenModule extends amf.Module {
         connect,
         RakutenTagGroupEntity
       );
+      this.getApiKey().then(apiKey => (this.apiKey = apiKey));
     });
     return true;
   }
@@ -49,7 +57,9 @@ export class RakutenModule extends amf.Module {
     if (!genreRepository) return undefined;
 
     const loadGenre = async () => {
-      const reader = new RakutenReader(RAKUTEN_KEY);
+      if(!this.apiKey)
+        return false;
+      const reader = new RakutenReader(this.apiKey);
       this.reading = true;
       this.readCount = 0;
       const genre = await reader.loadGenre(async genre => {
@@ -152,64 +162,6 @@ export class RakutenModule extends amf.Module {
   public isLoadGenre() {
     return this.reading;
   }
-  public async JS_getTree(parentId: number, level: number) {
-    const repository = this.genreRepository;
-    if (!repository) return undefined;
-    const parent = await repository.findOne(parentId);
-    if (!parent) return undefined;
-    return this.genreRepository.getChildren(parent, {
-      where: new typeorm.Brackets(dq => {
-        dq.where("level<=:level", { level: parent.level + level });
-      })
-    });
-  }
-  public async JS_getTreeRoot(genreId: number) {
-    const repository = this.genreRepository;
-    if (!repository) return undefined;
-    const tree = await repository.getParent(genreId);
-    if (!tree) return undefined;
-    let target = tree;
-    for (;;) {
-      const parent = target.parent;
-      if (!parent) return target;
-
-      parent.children = [target];
-      target.parent = undefined;
-      target = parent;
-    }
-  }
-  public async JS_getGenre(genreId: number) {
-    const repository = this.genreRepository;
-    if (!repository) return undefined;
-    const genre = await repository.findOne(genreId, {
-      relations: ["groups", "groups.tags"]
-    });
-    return genre;
-  }
-  public async JS_getGenreItem(options: ItemOptions) {
-    const reader = new RakutenReader(RAKUTEN_KEY);
-    const itemResult = await reader.loadItem(options);
-    if (!itemResult) return undefined;
-    const shopMap = new Map<string, string>();
-    itemResult.Items.forEach(item => {
-      const entity: RakutenItemEntity = item;
-      //タグの設定
-      entity.tags = [];
-      entity.tagIds.forEach(id => {
-        entity.tags.push({ id } as RakutenTagEntity);
-      });
-      //ジャンルの設定
-      entity.genre = { id: item.genreId } as RakutenGenreEntity;
-      //ショップの抽出
-      shopMap.set(item.shopCode, item.shopName);
-    });
-    //アイテム情報の保存
-    this.itemRepository.save(itemResult.Items);
-    //ショップ情報の保存
-    this.saveShop(shopMap);
-
-    return itemResult;
-  }
   private async saveShop(shopMap: Map<string, string>) {
     //ショップデータの保存
     //既存ショップデータの照合し除去
@@ -245,11 +197,89 @@ export class RakutenModule extends amf.Module {
       this.shopRepository.save(shops);
     }
   }
+  public isAdmin() {
+    const users = this.getSessionModule(Users);
+    return users.isAdmin();
+  }
+  public async setApiKey(apiKey: string) {
+    this.apiKey = apiKey;
+    return await this.optionRepository.save({ name: "API_KEY", value: apiKey });
+  }
+  public async getApiKey() {
+    return (await this.optionRepository.findOne({ name: "API_KEY" }))?.value;
+  }
+  public async JS_setApiKey(apiKey: string) {
+    return !this.isAdmin() ? false : await this.setApiKey(apiKey);
+  }
+  public async JS_getApiKey() {
+    return !this.isAdmin() ? false : await this.getApiKey();
+  }
+
   public async JS_getItem(itemCode: string) {
     const item = await this.itemRepository.findOne(itemCode, {
       relations: ["genre", "tags"]
     });
     return item;
+  }
+  public async JS_getTree(parentId: number, level: number) {
+    const repository = this.genreRepository;
+    if (!repository) return undefined;
+    const parent = await repository.findOne(parentId);
+    if (!parent) return undefined;
+    return this.genreRepository.getChildren(parent, {
+      where: new typeorm.Brackets(dq => {
+        dq.where("level<=:level", { level: parent.level + level });
+      })
+    });
+  }
+  public async JS_getTreeRoot(genreId: number) {
+    const repository = this.genreRepository;
+    if (!repository) return undefined;
+    const tree = await repository.getParent(genreId);
+    if (!tree) return undefined;
+    let target = tree;
+    for (;;) {
+      const parent = target.parent;
+      if (!parent) return target;
+
+      parent.children = [target];
+      target.parent = undefined;
+      target = parent;
+    }
+  }
+  public async JS_getGenre(genreId: number) {
+    const repository = this.genreRepository;
+    if (!repository) return undefined;
+    const genre = await repository.findOne(genreId, {
+      relations: ["groups", "groups.tags"]
+    });
+    return genre;
+  }
+  public async JS_getGenreItem(options: ItemOptions) {
+    if(!this.apiKey)
+      return false;
+    const reader = new RakutenReader(this.apiKey);
+    const itemResult = await reader.loadItem(options);
+    if (!itemResult) return undefined;
+    const shopMap = new Map<string, string>();
+    itemResult.Items.forEach(item => {
+      const entity: RakutenItemEntity = item;
+      //タグの設定
+      entity.tags = [];
+      entity.tagIds.forEach(id => {
+        entity.tags.push({ id } as RakutenTagEntity);
+      });
+      //ジャンルの設定
+      entity.genre = { id: item.genreId } as RakutenGenreEntity;
+      //ショップの抽出
+      shopMap.set(item.shopCode, item.shopName);
+    });
+    //アイテム情報の保存
+    this.itemRepository.save(itemResult.Items);
+    //ショップ情報の保存
+    this.saveShop(shopMap);
+
+    return itemResult;
   }
   async onTest() {
     // const remoteDB = await this.getModule(RemoteDB);

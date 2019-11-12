@@ -210,9 +210,7 @@ export class Files extends amf.Module {
 
     const dirInfos = (await repository
       .createQueryBuilder()
-      .select(
-        `id,"parentId",kind,name,date,octet_length(value) as size`
-      )
+      .select(`id,"parentId",kind,name,date,octet_length(value) as size`)
       .where("kind=0")
       .orderBy("name")
       .getRawMany()) as FileInfo[];

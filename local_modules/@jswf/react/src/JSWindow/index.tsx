@@ -88,7 +88,7 @@ export class JSWindow extends Component<WindowProps, State> {
     height: 300,
     moveable: false,
     borderSize: 16,
-    titleSize: 32,
+    titleSize: 40,
     title: "",
     active: true,
     overlapped: true,

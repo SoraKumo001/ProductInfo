@@ -23,22 +23,22 @@ export class HtmlCreater {
   private links: string[] = [];
   private headers: { [key: string]: string } = {};
   private req?: express.Request;
-  private options:{
-    baseUrl: string,
-    rootPath: string,
-    indexPath: string,
-    cssPath: string[],
-    jsPath: string[],
-    jsPriority: string[]
-  }
-  constructor(options:{
-    baseUrl: string,
-    rootPath: string,
-    indexPath: string,
-    cssPath: string[],
-    jsPath: string[],
-    jsPriority: string[]
-  }){
+  private options: {
+    baseUrl: string;
+    rootPath: string;
+    indexPath: string;
+    cssPath: string[];
+    jsPath: string[];
+    jsPriority: string[];
+  };
+  constructor(options: {
+    baseUrl: string;
+    rootPath: string;
+    indexPath: string;
+    cssPath: string[];
+    jsPath: string[];
+    jsPriority: string[];
+  }) {
     this.options = options;
     this.output.bind(this);
   }
@@ -71,7 +71,6 @@ export class HtmlCreater {
     return this.req as express.Request;
   }
 
-
   /**
    *HTMLデータの出力
    *
@@ -91,7 +90,13 @@ export class HtmlCreater {
     req: express.Request,
     res: express.Response
   ): Promise<boolean> {
-    const {indexPath,jsPriority: priorityJs,rootPath,jsPath,cssPath} = this.options;
+    const {
+      indexPath,
+      jsPriority: priorityJs,
+      rootPath,
+      jsPath,
+      cssPath
+    } = this.options;
 
     if (!(await this.openTemplate(indexPath))) return false;
     this.req = req;
@@ -120,9 +125,7 @@ export class HtmlCreater {
     );
     if (this.jsdom) {
       res.write("<!DOCTYPE html>\n");
-      res.end(
-        this.jsdom.window.document.documentElement.outerHTML
-      );
+      res.end(this.jsdom.window.document.documentElement.outerHTML);
     } else res.end();
     return true;
   }
