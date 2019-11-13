@@ -1,14 +1,16 @@
-#一般リポジトリ用ビルドテスト
-name: BuildTest
-
+#masterリポジトリ用デプロイ設定
+name: Deploy master
 on:
   push:
-    branches-ignore:
+    branches:
       - master
-  pull_request:
 
 jobs:
   build:
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -26,3 +28,6 @@ jobs:
       - name: Build
         run: |
           yarn build:all
+      - name: Deploy
+        run: |
+          bash .github/scripts/deploy.sh
