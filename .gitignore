@@ -11,4 +11,3 @@ dist/public/favicon.ico
 /dist/public
 src/---/
 yarn-error.log
-yarn.lock
