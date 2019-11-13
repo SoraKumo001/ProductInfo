@@ -4,7 +4,7 @@ name: BuildTest
 on:
   push:
     branches-ignore:
-      - master
+      - release/*
   pull_request:
 
 jobs:
