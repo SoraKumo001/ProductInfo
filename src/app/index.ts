@@ -5,6 +5,7 @@ import * as fs from "fs";
 import { HtmlCreater } from "./HtmlCreater";
 import * as browserSync from "browser-sync";
 import * as connectBrowserSync from "connect-browser-sync";
+import { Server } from "http";
 
 const options = new Set(process.argv);
 const testMode = options.has("--test");
@@ -53,11 +54,17 @@ manager
     //静的ファイルの設定(index.jsからの相対パス)
     app.use(express.static(path.resolve(__dirname, "../public")));
 
+    let server: Server;
     //待ち受けポート設定
-    if (process.platform === "win32") app.listen(8080);
-    else {
+    if (process.platform === "win32") {
+      server = app.listen(8080);
+      manager.output("listen: http://localhost:8080");
+    } else {
       const path = "dist/sock/app.sock";
-      app.listen(path);
+      server = app.listen(path);
       fs.chmodSync(path, "666");
+      manager.output("listen: dist/sock/app.sock");
     }
+    if(testMode)
+      server.close();
   });
