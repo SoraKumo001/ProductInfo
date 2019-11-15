@@ -18,7 +18,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: node_modules
-          key: xbrowser-yarn-${{ hashFiles('**\yarn.lock') }}
+          key: xbrowser-yarn-${{ hashFiles('**\package-lock.json') }}
           restore-keys: |
             xbrowser-yarn-
       - name: Install Dependencies
