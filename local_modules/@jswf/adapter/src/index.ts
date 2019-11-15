@@ -1,3 +1,5 @@
+import axios, { Method } from "axios";
+
 interface FunctionData {
   name: string;
   params: unknown[];
@@ -17,11 +19,20 @@ interface AdapterFormat {
     params: unknown[]; //パラメータ
   }[];
 }
+interface AdapterResultFormat
+{
+  globalHash: string;
+  sessionHash: string;
+  results: AdapterResult[];
+}
 
 export interface AdapterResult {
   value: { [keys: string]: unknown } | null;
   error: string | null;
 }
+
+var localStorage:Storage;
+var sessionStorage:Storage;
 
 /**
  *Ajax通信用アダプタ
@@ -34,7 +45,8 @@ export class Adapter {
   private scriptUrl: string;
   private keyName: string;
   private functionSet: FunctionSet[] = [];
-
+  private globalHash = localStorage?localStorage.getItem(this.keyName):null;
+  private sessionHash = sessionStorage?sessionStorage.getItem(this.keyName):null;
   /**
    *Creates an instance of Adapter.
    * @param {string} [scriptUrl] 通信先アドレス
@@ -162,7 +174,7 @@ export class Adapter {
    */
   private callSend(): void {
     if (!this.handle) {
-      this.handle = window.setTimeout((): void => {
+      this.handle = setTimeout((): void => {
         this.handle = null;
         this.send(this.functionSet);
       }, 0);
@@ -179,8 +191,8 @@ export class Adapter {
    * @memberof Adapter
    */
   private async send(functionSet: FunctionSet[], binary?: boolean) {
-    const globalHash = localStorage.getItem(this.keyName);
-    const sessionHash = sessionStorage.getItem(this.keyName);
+    const globalHash = this.globalHash;
+    const sessionHash = this.sessionHash;
     const params: AdapterFormat = {
       globalHash: globalHash,
       sessionHash: sessionHash,
@@ -201,11 +213,7 @@ export class Adapter {
       params,
       undefined,
       binary
-    )) as {
-      globalHash: string;
-      sessionHash: string;
-      results: AdapterResult[];
-    } | null;
+    )) as AdapterResultFormat | null;
 
     if (res === null) {
       for (let funcs of functionSet) {
@@ -223,8 +231,14 @@ export class Adapter {
       return;
     }
     //セッションキーの更新
-    if (res.globalHash) localStorage.setItem(this.keyName, res.globalHash);
-    if (res.sessionHash) sessionStorage.setItem(this.keyName, res.sessionHash);
+    if (res.globalHash && localStorage){
+      localStorage.setItem(this.keyName, res.globalHash);
+      this.globalHash = res.globalHash
+    }
+    if (res.sessionHash && sessionStorage){
+      sessionStorage.setItem(this.keyName, res.sessionHash);
+      this.sessionHash = res.sessionHash
+    }
 
     const results = res.results;
     let index = 0;
@@ -265,7 +279,7 @@ export class Adapter {
    */
   public static sendJsonAsync(
     url: string,
-    data?: unknown,
+    data?: object,
     headers?: { [key: string]: string },
     binary?: boolean
   ): Promise<unknown> {
@@ -293,67 +307,7 @@ export class Adapter {
       }
     });
   }
-  public static sendParamsAsync(
-    method: string,
-    url: string,
-    getParam?: { [key: string]: string | number | boolean },
-    postParam?: { [key: string]: string | number | boolean },
-    headers?: { [key: string]: string }
-  ) {
-    return new Promise((resolve, reject) => {
-      const req = new XMLHttpRequest();
 
-      const getString = getParam
-        ? Object.entries(getParam).reduce((a, [name, value]) => {
-            return (
-              (a.length ? a + "&" : "") +
-              (encodeURIComponent(name) +
-                "=" +
-                encodeURIComponent(value.toString()))
-            );
-          }, "")
-        : "";
-      const postString = postParam
-        ? Object.entries(postParam).reduce((a, [name, value]) => {
-            return (
-              (a.length ? a + "&" : "") +
-              (encodeURIComponent(name) +
-                "=" +
-                encodeURIComponent(value.toString()))
-            );
-          }, "")
-        : "";
-
-      req.onreadystatechange = function(): void {
-        if (req.readyState == 4) {
-          if (req.status === 200) {
-            if (typeof req.response === "string") {
-              const value = req.response
-                .split("&")
-                .reduce<{ [key: string]: string }>((a, b) => {
-                  const [key, value] = b.split("=");
-                  a[key] = value;
-                  return a;
-                }, {});
-              resolve(value);
-            }
-          } else reject(req);
-        }
-      };
-      req.open(
-        method,
-        url + (url.indexOf("?") === -1 ? "?" : "&") + getString,
-        true
-      );
-      if (headers) {
-        for (let index in headers) {
-          const value = headers[index];
-          if (value) req.setRequestHeader(index, value);
-        }
-      }
-      req.send(postString);
-    });
-  }
   /**
    *Jsonデータの送受信
    *
@@ -368,48 +322,16 @@ export class Adapter {
    */
   private static sendJson(
     url: string,
-    data: unknown,
+    data: object | undefined,
     proc: (value: unknown, status: number) => void,
     headers?: { [key: string]: string }
   ): void {
-    const req = new XMLHttpRequest();
-
-    //ネイティブでJSON変換が可能かチェック
-    var jsonFlag = false;
-    try {
-      req.responseType = "json";
-    } catch (e) {
-      jsonFlag = true;
-    }
-    if (proc == null) {
-      req.open("POST", url, false);
-      return JSON.parse(req.responseText);
-    } else {
-      req.onreadystatechange = function(): void {
-        if (req.readyState == 4) {
-          var obj = null;
-          try {
-            if (jsonFlag)
-              //JSON変換の仕分け
-              obj = JSON.parse(req.response);
-            else obj = req.response;
-            proc(obj, req.status);
-          } catch (e) {
-            proc(e, req.status);
-            return;
-          }
-        }
-      };
-    }
-    req.open("POST", url, true);
-    req.setRequestHeader("Content-Type", "application/json");
-    if (headers) {
-      for (let index in headers) {
-        const value = headers[index];
-        if (value) req.setRequestHeader(index, value);
-      }
-    }
-    req.send(data == null ? null : JSON.stringify(data));
+    axios({
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json" },
+      data: JSON.stringify(data),
+      url
+    }).then(res => proc(res.data, res.status));
   }
 
   /**
@@ -426,27 +348,17 @@ export class Adapter {
    */
   private static sendJsonToBinary(
     url: string,
-    data: unknown,
+    data: object | undefined,
     proc: (value: unknown, status: number) => void,
     headers?: { [key: string]: string }
   ): void {
-    const req = new XMLHttpRequest();
-    req.responseType = "blob";
-    req.onreadystatechange = function(): void {
-      if (req.readyState == 4) {
-        proc(req.response, req.status);
-      }
-    };
-
-    req.open("POST", url, true);
-    req.setRequestHeader("Content-Type", "application/json");
-    if (headers) {
-      for (let index in headers) {
-        const value = headers[index];
-        if (value) req.setRequestHeader(index, value);
-      }
-    }
-    req.send(data == null ? null : JSON.stringify(data));
+    axios({
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json" },
+      data: JSON.stringify(data),
+      responseType: "arraybuffer",
+      url
+    }).then(res => proc(res.data, res.status));
   }
 
   /**
@@ -462,8 +374,8 @@ export class Adapter {
   public upload(buffer: Blob, funcName: string, ...params: unknown[]) {
     return new Promise((resolve, reject) => {
       //ハッシュデータの読み出し
-      const globalHash = localStorage.getItem(this.keyName);
-      const sessionHash = sessionStorage.getItem(this.keyName);
+      const globalHash = this.globalHash;
+      const sessionHash = this.sessionHash;
       const adapterFormat: AdapterFormat = {
         globalHash: globalHash,
         sessionHash: sessionHash,
@@ -474,20 +386,20 @@ export class Adapter {
           }
         ]
       };
-      const proc = (res: {
-        globalHash: string;
-        sessionHash: string;
-        results: AdapterResult[];
-      }) => {
+      const proc = (res: AdapterResultFormat) => {
         if (res == null) {
           // eslint-disable-next-line no-console
           console.error("通信エラー");
           reject("通信エラー");
         } else {
-          if (res.globalHash)
+          if (res.globalHash && localStorage){
             localStorage.setItem(this.keyName, res.globalHash);
-          if (res.sessionHash)
+            this.globalHash = res.globalHash
+          }
+          if (res.sessionHash && sessionStorage){
             sessionStorage.setItem(this.keyName, res.sessionHash);
+            this.sessionHash = res.sessionHash
+          }
           if (res.results && res.results.length) {
             const result = res.results[0];
             if (result.error) reject(result.error);
@@ -518,8 +430,12 @@ export class Adapter {
   public static sendFile(
     url: string,
     buffer: Blob,
-    proc: (result: never) => void,
-    params: { [key: string]: string | number }
+    proc: (
+      result: AdapterResultFormat,
+      status: number
+    ) => void,
+    params: { [key: string]: string | number },
+    headers?: { [key: string]: string }
   ) {
     //GETパラメータの構築
     let urlParam = "";
@@ -532,22 +448,12 @@ export class Adapter {
       url += url.indexOf("?") >= 0 ? "&" : "?";
       url += urlParam;
     }
-    //データ送信
-    const req = new XMLHttpRequest();
-    try {
-      req.open("POST", url, true);
-      req.setRequestHeader("Content-Type", "application/octet-stream");
-      req.send(buffer);
-    } catch (e) {
-      alert(e);
-      return null;
-    }
-    req.onreadystatechange = () => {
-      if (req.readyState == 4) {
-        proc(JSON.parse(req.response) as never);
-      }
-    };
-
-    return req;
+    axios({
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/octet-stream" },
+      data: buffer,
+      responseType: "arraybuffer",
+      url
+    }).then(res => proc(res.data, res.status));
   }
 }

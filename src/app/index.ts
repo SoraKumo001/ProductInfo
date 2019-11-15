@@ -1,11 +1,12 @@
 import { Manager } from "@jswf/rfs";
 import * as path from "path";
-import * as express from "express";
+import express from "express";
 import * as fs from "fs";
 import { HtmlCreater } from "./HtmlCreater";
-import * as browserSync from "browser-sync";
-import * as connectBrowserSync from "connect-browser-sync";
+import browserSync from "browser-sync";
 import { Server } from "http";
+import { Adapter } from '@jswf/adapter';
+const connectBrowserSync = require("connect-browser-sync");
 
 const options = new Set(process.argv);
 const testMode = options.has("--test");
@@ -54,17 +55,34 @@ manager
     //静的ファイルの設定(index.jsからの相対パス)
     app.use(express.static(path.resolve(__dirname, "../public")));
 
-    let server: Server;
-    //待ち受けポート設定
-    if (process.platform === "win32") {
-      server = app.listen(8080);
-      manager.output("listen: http://localhost:8080");
-    } else {
-      const path = "dist/sock/app.sock";
-      server = app.listen(path);
-      fs.chmodSync(path, "666");
-      manager.output("listen: dist/sock/app.sock");
+    const promise = new Promise((resolve)=>{
+      let server: Server;
+      //待ち受けポート設定
+      if (process.platform === "win32") {
+        server = app.listen(8080,resolve);
+        manager.output("listen: http://localhost:8080");
+      } else {
+        const path = "dist/sock/app.sock";
+        server = app.listen(path,resolve);
+        fs.chmodSync(path, "666");
+        manager.output("listen: dist/sock/app.sock");
+      }
+    });
+
+
+    if (testMode) {
+      promise.then(()=>{
+        const adapter = new Adapter("http://127.0.0.1:8080/");
+        adapter.exec("InfoModule.add",100,200).then(value=>console.log(value));
+      })
+
+      // const res = {};
+      // const adapter: AdapterFormat = {
+      //   globalHash: null,
+      //   sessionHash: null,
+      //   functions: []
+      // };
+      // manager.execute(res, adapter);
+      //  server.close();
     }
-    if(testMode)
-      server.close();
   });

@@ -19,7 +19,7 @@ type Deeps<
     }[Paths[1] extends undefined ? 0 : 1]
   : never;
 
-type map = { [key: string]: unknown|object };
+type map = { [key: string]: unknown | object };
 type moduleType<T> = {
   new (
     dispatch: Dispatch,
@@ -325,9 +325,7 @@ export function useModule<T extends ReduxModule, C extends typeof ReduxModule>(
     ? undefined
     : (useSelector(store => (store as map)[moduleName]) as map | undefined);
   const dispatch = useDispatch();
-  return useMemo(() => {
-    return new module(dispatch, store, moduleName, modules, !!writeOnly);
-  }, [store, ...Object.values(modules)]);
+  return new module(dispatch, store, moduleName, modules, !!writeOnly);
 }
 /**
  * モジュールを取得(Classコンポーネント用)

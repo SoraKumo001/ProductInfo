@@ -242,7 +242,7 @@ export class Users extends amf.Module {
       //ユーザが存在するか確認
       const userEntity = await userRepository.findOne(userNo);
       if (userName === "") userName = userId;
-      let result;
+      let result:any;
       try {
         if (userEntity) {
           result = await userRepository.update(userNo, {
@@ -254,9 +254,9 @@ export class Users extends amf.Module {
             id: userId,
             password: getSHA256(userPass),
             name: userName
-          });
+          }) ;
         }
-        if (result && result.type !== undefined) {
+        if (result) {
           result.type = result.type ? "local" : "remote";
         }
       } catch {

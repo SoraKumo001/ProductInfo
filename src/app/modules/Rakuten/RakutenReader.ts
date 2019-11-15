@@ -95,7 +95,7 @@ export interface ItemOptions {
   page?: number;
 }
 
-function convertParam(params: { [key: string]: unknown }): string {
+function convertParam(params: { [key: string]: string|number }): string {
   let text = "";
   for (const index of Object.keys(params)) {
     if (text.length) text += "&";
@@ -110,14 +110,14 @@ export class RakutenReader {
     this.apiKey = apiKey;
   }
   public async loadItem(options: ItemOptions) {
-    if (isNaN(options.genreId)) return null;
+    if (isNaN(options.genreId!)) return null;
     let URL =
       "https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706?";
 
     const params: { [key: string]: string | number } = {
       formatVersion: 2,
       applicationId: this.apiKey,
-      genreId: options.genreId
+      genreId: options.genreId!
     };
     if (options.page && !isNaN(options.page)) {
       params.page = options.page;
@@ -138,7 +138,7 @@ export class RakutenReader {
     return res ? res.data : undefined;
   }
   public async loadGenre(
-    onGenre: (genre: RakutenGenreEntity) => Promise<boolean>
+    onGenre?: (genre: RakutenGenreEntity) => Promise<boolean>
   ): Promise<RakutenGenreEntity | undefined> {
     let parallelCount = 0;
     const getGenre = async (
@@ -189,7 +189,7 @@ export class RakutenReader {
           }
           parent.groups = groups;
 
-          if (!(await onGenre(parent))) return false;
+          if (onGenre && !(await onGenre(parent))) return false;
 
           parent.children = [];
           //子ジャンルの取得
@@ -229,7 +229,7 @@ export class RakutenReader {
     });
     if (res) {
       const reg = res.data.match(/service_id=1&shop_id=([\d]+)&/);
-      if (reg.length === 2)
+      if (reg && reg.length === 2)
         return parseInt(reg[1]);
     }
     return undefined;

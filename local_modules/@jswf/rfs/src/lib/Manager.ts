@@ -412,7 +412,7 @@ export class Manager {
       const params = req.query.params;
       try {
         const values = JSON.parse(params);
-        if (params) this.excute(res, values, req.body);
+        if (params) this.execute(res, values, req.body);
       } catch (e) {
         res.status(500);
         res.end("500 error");
@@ -430,7 +430,7 @@ export class Manager {
    */
   private exec(req: express.Request, res: express.Response): void {
     if (req.header("content-type") === "application/json") {
-      this.excute(res, req.body);
+      this.execute(res, req.body);
     } else {
       let postData = "";
       req
@@ -440,7 +440,7 @@ export class Manager {
         .on("end", (): void => {
           try {
             const values = JSON.parse(postData);
-            this.excute(res, values);
+            this.execute(res, values);
           } catch (e) {
             res.status(500);
             res.end("500 error");
@@ -452,14 +452,14 @@ export class Manager {
   /**
    *クライアントからの処理要求を実行
    *
-   * @private
+   * @public
    * @param {express.Response} res
    * @param {AdapterFormat} params
    * @param {Buffer} [buffer]
    * @returns {Promise<void>}
    * @memberof Manager
    */
-  private async excute(
+  public async execute(
     res: express.Response,
     params: AdapterFormat,
     buffer?: Buffer

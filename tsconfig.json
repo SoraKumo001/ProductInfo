@@ -2,6 +2,7 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "preserveSymlinks": true,
     "allowJs": true,
     "strict": true,
     "jsx": "react",

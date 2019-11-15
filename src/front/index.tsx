@@ -1,7 +1,7 @@
 import "core-js/features/object";
 import "core-js/features/promise";
 
-import React, { ReactElement, useEffect, useState } from "react";
+import React from "react";
 import * as ReactDOM from "react-dom";
 import logger from "redux-logger";
 import { createStore, applyMiddleware } from "redux";

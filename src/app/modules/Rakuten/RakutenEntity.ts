@@ -4,18 +4,18 @@ import { RakutenItem } from "./RakutenReader";
 @typeorm.Entity()
 export class RakutenOptionEntity{
 	@typeorm.PrimaryColumn()
-	name:string;
+	name!:string;
 	@typeorm.Column()
-	value:string;
+	value!:string;
 }
 @typeorm.Entity()
 export class RakutenShopEntity{
 	@typeorm.PrimaryColumn()
-	id:number;
+	id!:number;
 	@typeorm.Column({unique:true})
-	code:string;
+	code!:string;
 	@typeorm.Column()
-	name:string;
+	name!:string;
 }
 
 @typeorm.Entity()
@@ -84,89 +84,89 @@ export class RakutenGenreEntity {
 
   @typeorm.ManyToMany(() => RakutenTagGroupEntity)
   @typeorm.JoinTable()
-  groups: RakutenTagGroupEntity[];
+  groups?: RakutenTagGroupEntity[];
 }
 
 
 @typeorm.Entity()
 export class RakutenItemEntity implements RakutenItem {
   @typeorm.PrimaryColumn()
-  itemCode: string;
+  itemCode!: string;
 
   @typeorm.ManyToMany(() => RakutenTagEntity)
   @typeorm.JoinTable()
-  tags?: RakutenTagEntity[];
+  tags!: RakutenTagEntity[];
 
-  tagIds: number[];
+  tagIds!: number[];
 
   @typeorm.ManyToOne(() => RakutenGenreEntity)
   @typeorm.JoinColumn()
-  genre?: RakutenGenreEntity;
-  genreId:number;
+  genre!: RakutenGenreEntity;
+  genreId!:number;
 
 
   @typeorm.Column('simple-json')
-  mediumImageUrls: string[];
+  mediumImageUrls!: string[];
   @typeorm.Column()
-  pointRate: number;
+  pointRate!: number;
   @typeorm.Column()
-  shopOfTheYearFlag: number;
+  shopOfTheYearFlag!: number;
   @typeorm.Column()
-  affiliateRate: number;
+  affiliateRate!: number;
   @typeorm.Column()
-  shipOverseasFlag: number;
+  shipOverseasFlag!: number;
   @typeorm.Column()
-  asurakuFlag: number;
+  asurakuFlag!: number;
   @typeorm.Column()
-  endTime: string;
+  endTime!: string;
   @typeorm.Column()
-  taxFlag: number;
+  taxFlag!: number;
   @typeorm.Column()
-  startTime: string;
+  startTime!: string;
   @typeorm.Column()
-  itemCaption: string;
+  itemCaption!: string;
   @typeorm.Column()
-  catchcopy: string;
+  catchcopy!: string;
   @typeorm.Column('simple-json')
-  smallImageUrls: string[];
+  smallImageUrls!: string[];
   @typeorm.Column()
-  asurakuClosingTime: string;
+  asurakuClosingTime!: string;
   @typeorm.Column()
-  imageFlag: number;
+  imageFlag!: number;
   @typeorm.Column()
-  availability: number;
+  availability!: number;
   @typeorm.Column()
-  shopAffiliateUrl: string;
+  shopAffiliateUrl!: string;
   @typeorm.Column()
-  postageFlag: number;
+  postageFlag!: number;
   @typeorm.Column()
-  itemName: string;
+  itemName!: string;
   @typeorm.Column()
-  itemPrice: number;
+  itemPrice!: number;
   @typeorm.Column()
-  pointRateEndTime: string;
+  pointRateEndTime!: string;
   @typeorm.Column()
-  shopCode: string;
+  shopCode!: string;
   @typeorm.Column()
-  affiliateUrl: string;
+  affiliateUrl!: string;
   @typeorm.Column()
-  giftFlag: number;
+  giftFlag!: number;
   @typeorm.Column()
-  shopName: string;
+  shopName!: string;
   @typeorm.Column()
-  reviewCount: number;
+  reviewCount!: number;
   @typeorm.Column()
-  asurakuArea: string;
+  asurakuArea!: string;
   @typeorm.Column()
-  shopUrl: string;
+  shopUrl!: string;
   @typeorm.Column()
-  creditCardFlag: number;
+  creditCardFlag!: number;
   @typeorm.Column('float')
-  reviewAverage: number;
+  reviewAverage!: number;
   @typeorm.Column()
-  shipOverseasArea: string;
+  shipOverseasArea!: string;
   @typeorm.Column()
-  pointRateStartTime: string;
+  pointRateStartTime!: string;
   @typeorm.Column()
-  itemUrl: string;
+  itemUrl!: string;
 }

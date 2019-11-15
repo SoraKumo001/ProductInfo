@@ -1,6 +1,6 @@
 {
   "name": "@jswf/adapter",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Ajax Adapter",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,9 +18,11 @@
   "author": "SoraKumo",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "~3.6.3"
+    "typescript": "~3.7.2"
   },
-  "dependencies": {},
+  "dependencies": {
+    "axios": "^0.19.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/JavaScript-WindowFramework/jswf-adapter.git"
