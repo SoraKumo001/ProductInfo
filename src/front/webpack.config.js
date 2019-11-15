@@ -5,12 +5,10 @@ const config = {
   performance: { hints: false },
   mode: "production",
   //mode: 'development',
-  entry: [path.resolve(__dirname, "./index.tsx")].concat(
-    glob.sync("./**/*.auto.ts")
-  ),
+  entry: [path.resolve(__dirname, "./index.tsx")],
   output: {
     filename: "bundle.js",
-    path: path.resolve(__dirname, "../dist/public/js")
+    path: path.resolve(__dirname, "../../dist/public/js")
   },
   module: {
     rules: [
@@ -62,7 +60,7 @@ const config = {
     concatenateModules: true
   },
   devServer: {
-    contentBase: path.join(__dirname, "../dist/public"),
+    contentBase: path.join(__dirname, "../../dist/public"),
     host: "localhost"
   }
 };
