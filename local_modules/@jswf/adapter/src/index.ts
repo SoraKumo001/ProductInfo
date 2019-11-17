@@ -39,7 +39,7 @@ var sessionStorage: Storage;
  * @export
  * @class Adapter
  */
-export class Adapter<T extends { [key: string]: any }={}> {
+export class Adapter<T extends { [key: string]: any } = {}> {
   private handle: number | null;
   private scriptUrl: string;
   private keyName: string;
@@ -115,18 +115,19 @@ export class Adapter<T extends { [key: string]: any }={}> {
     this.send([functionSet], true);
     return promise as Promise<never>;
   }
-  public exec2<K extends keyof T|string>(
+
+  public exec<K extends keyof T | string>(
     name: K,
     ...params: K extends keyof T
       ? T[K] extends (...args: infer P) => ReturnType<T[K]>
         ? P
         : unknown[]
       : unknown[]
-  ) {
-    return this.exec(name as string, ...params) as K extends keyof T
-      ? ReturnType<T[K]> extends Promise<never>?ReturnType<T[K]>:Promise<ReturnType<T[K]>>
-      : Promise<never>;
-  }
+  ): K extends keyof T
+    ? ReturnType<T[K]> extends Promise<never>
+      ? ReturnType<T[K]>
+      : Promise<ReturnType<T[K]>>
+    : Promise<never>;
   /**
    *複数のファンクションの実行
    *
@@ -143,10 +144,14 @@ export class Adapter<T extends { [key: string]: any }={}> {
    * @returns {Promise<any>}
    * @memberof Adapter
    */
+
   // eslint-disable-next-line no-dupe-class-members
   public exec(funcName: string, ...params: unknown[]): Promise<never>;
   // eslint-disable-next-line no-dupe-class-members
-  public exec(v1: FunctionData[][] | string, ...v2: unknown[]): Promise<never> {
+  public exec(
+    v1: FunctionData[][] | string,
+    ...v2: unknown[]
+  ): Promise<never|unknown> {
     let functionSet: FunctionSet;
     if (Array.isArray(v1)) {
       const functions: FunctionData[] = [];

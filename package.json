@@ -19,7 +19,6 @@
   "license": "ISC",
   "dependencies": {
     "@jswf/react": "file:local_modules/@jswf/react",
-    "@jswf/redux-module": "file:local_modules/@jswf/redux-module",
     "@jswf/rfs": "file:local_modules/@jswf/rfs",
     "@types/browser-sync": "^2.26.1",
     "@types/node": "^12.12.8",
@@ -32,6 +31,7 @@
     "typeorm": "^0.2.20"
   },
   "devDependencies": {
+    "@jswf/redux-module": "file:local_modules/@jswf/redux-module",
     "@jswf/adapter": "file:local_modules/@jswf/adapter",
     "@jswf/react-star-rating": "^1.0.1",
     "@types/capture-console": "~1.0.0",

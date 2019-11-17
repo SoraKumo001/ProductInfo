@@ -84,7 +84,7 @@ manager
         try {
           console.log("\n--- セッション開始テスト ---");
           await adapter
-            .exec2("Users.request")
+            .exec("Users.request")
             .then(value => console.log(value));
           console.log("\n--- ユーザ作成テスト ---");
           await adapter
@@ -92,13 +92,13 @@ manager
             .then(value => console.log(value));
           console.log("\n--- ユーザログインテスト ---");
           await adapter
-            .exec2("Users.login", "test-user", "test", true, true)
+            .exec("Users.login", "test-user", "test", true, true)
             .then(value => console.log(value));
           console.log("\n--- セッション確認 ---");
           await adapter.exec("Users.request").then(value => console.log(value));
           console.log("\n--- ログアウト ---");
           await adapter
-          .exec2("Users.logout").then(value => console.log(value))
+          .exec("Users.logout").then(value => console.log(value))
         } catch (e) {
           console.error(e);
           server.close(() => process.exit(-1));
