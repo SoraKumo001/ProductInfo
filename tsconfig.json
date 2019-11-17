@@ -11,7 +11,7 @@
 
 	"references": [
     {"path": "./src/app"},
-    {"path": "node_modules/@jswf/redux-module/src/"},
+ //   {"path": "node_modules/@jswf/redux-module/src/"},
     {"path": "node_modules/@jswf/react/src/"}
 	],
 	"exclude": ["."]

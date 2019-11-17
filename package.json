@@ -31,9 +31,9 @@
     "typeorm": "^0.2.20"
   },
   "devDependencies": {
-    "@jswf/redux-module": "file:local_modules/@jswf/redux-module",
     "@jswf/adapter": "file:local_modules/@jswf/adapter",
     "@jswf/react-star-rating": "^1.0.1",
+    "@jswf/redux-module": "^0.1.7",
     "@types/capture-console": "~1.0.0",
     "@types/express": "^4.17.2",
     "@types/jsdom": "~12.2.4",
