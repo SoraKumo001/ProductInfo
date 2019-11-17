@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon --preserve-symlinks dist/app/index.js",
-    "test": "nodemon --preserve-symlinks dist/app/index.js --test",
+    "test": "node --preserve-symlinks dist/app/index.js --test",
     "watch:test": "concurrently \"npm:watch:front\" \"npm:watch:back\" \"npm:test\"",
     "watch:all": "concurrently \"npm:watch:front\" \"npm:watch:back\" \"npm:start\"",
     "build:all": "concurrently \"npm run build:rfs && npm run build:back\" \"npm run build:front-module && npm run build:front\"",

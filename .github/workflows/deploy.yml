@@ -22,10 +22,12 @@ jobs:
           restore-keys: |
             xbrowser-yarn-
       - name: Install Dependencies
-        run: yarn install
+        run: npm install
       - name: Build
         run: |
-          yarn build:all
+          npm run build:all
+      - name: API test
+        run: npm run test
       - name: Deploy
         run: |
           bash .github/scripts/deploy.sh

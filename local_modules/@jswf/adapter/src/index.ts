@@ -19,8 +19,7 @@ interface AdapterFormat {
     params: unknown[]; //パラメータ
   }[];
 }
-interface AdapterResultFormat
-{
+interface AdapterResultFormat {
   globalHash: string;
   sessionHash: string;
   results: AdapterResult[];
@@ -31,8 +30,8 @@ export interface AdapterResult {
   error: string | null;
 }
 
-var localStorage:Storage;
-var sessionStorage:Storage;
+var localStorage: Storage;
+var sessionStorage: Storage;
 
 /**
  *Ajax通信用アダプタ
@@ -40,13 +39,15 @@ var sessionStorage:Storage;
  * @export
  * @class Adapter
  */
-export class Adapter {
+export class Adapter<T extends { [key: string]: any }> {
   private handle: number | null;
   private scriptUrl: string;
   private keyName: string;
   private functionSet: FunctionSet[] = [];
-  private globalHash = localStorage?localStorage.getItem(this.keyName):null;
-  private sessionHash = sessionStorage?sessionStorage.getItem(this.keyName):null;
+  private globalHash = localStorage ? localStorage.getItem(this.keyName) : null;
+  private sessionHash = sessionStorage
+    ? sessionStorage.getItem(this.keyName)
+    : null;
   /**
    *Creates an instance of Adapter.
    * @param {string} [scriptUrl] 通信先アドレス
@@ -114,7 +115,18 @@ export class Adapter {
     this.send([functionSet], true);
     return promise as Promise<never>;
   }
-
+  public exec2<K extends keyof T|string>(
+    name: K,
+    ...params: K extends keyof T
+      ? T[K] extends (...args: infer P) => ReturnType<T[K]>
+        ? P
+        : unknown[]
+      : unknown[]
+  ) {
+    return this.exec(name as string, ...params) as K extends keyof T
+      ? ReturnType<T[K]> extends Promise<never>?ReturnType<T[K]>:Promise<ReturnType<T[K]>>
+      : Promise<never>;
+  }
   /**
    *複数のファンクションの実行
    *
@@ -231,13 +243,13 @@ export class Adapter {
       return;
     }
     //セッションキーの更新
-    if (res.globalHash && localStorage){
-      localStorage.setItem(this.keyName, res.globalHash);
-      this.globalHash = res.globalHash
+    if (res.globalHash) {
+      localStorage && localStorage.setItem(this.keyName, res.globalHash);
+      this.globalHash = res.globalHash;
     }
-    if (res.sessionHash && sessionStorage){
-      sessionStorage.setItem(this.keyName, res.sessionHash);
-      this.sessionHash = res.sessionHash
+    if (res.sessionHash) {
+      sessionStorage && sessionStorage.setItem(this.keyName, res.sessionHash);
+      this.sessionHash = res.sessionHash;
     }
 
     const results = res.results;
@@ -259,7 +271,7 @@ export class Adapter {
       } else {
         const result = results[index];
         // eslint-disable-next-line no-console
-        if (result.error) console.error(result.error);
+        if (result.error) funcs.promise.reject(result.error);
         else funcs.promise.resolve(result.value);
       }
       index += length;
@@ -392,13 +404,14 @@ export class Adapter {
           console.error("通信エラー");
           reject("通信エラー");
         } else {
-          if (res.globalHash && localStorage){
-            localStorage.setItem(this.keyName, res.globalHash);
-            this.globalHash = res.globalHash
+          if (res.globalHash) {
+            localStorage && localStorage.setItem(this.keyName, res.globalHash);
+            this.globalHash = res.globalHash;
           }
-          if (res.sessionHash && sessionStorage){
-            sessionStorage.setItem(this.keyName, res.sessionHash);
-            this.sessionHash = res.sessionHash
+          if (res.sessionHash) {
+            sessionStorage &&
+              sessionStorage.setItem(this.keyName, res.sessionHash);
+            this.sessionHash = res.sessionHash;
           }
           if (res.results && res.results.length) {
             const result = res.results[0];
@@ -430,10 +443,7 @@ export class Adapter {
   public static sendFile(
     url: string,
     buffer: Blob,
-    proc: (
-      result: AdapterResultFormat,
-      status: number
-    ) => void,
+    proc: (result: AdapterResultFormat, status: number) => void,
     params: { [key: string]: string | number },
     headers?: { [key: string]: string }
   ) {

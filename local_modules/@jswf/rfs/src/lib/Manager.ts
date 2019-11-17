@@ -516,10 +516,10 @@ export class Manager {
           continue;
         }
         //ファンクション名にプレフィックスを付ける
-        const funcName = "JS_" + name[1];
+        const funcName = name[1];
         //ファンクションを取得
-        const funcPt = classPt[funcName as keyof Module] as Function | null;
-        if (!funcPt) {
+        const funcPt = classPt[funcName as keyof Module] as Function &{RFS_EXPORT?:boolean}| null;
+        if (!funcPt || !funcPt.RFS_EXPORT) {
           result.error = util.format("命令が存在しない: %s", func.function);
           continue;
         }
@@ -527,13 +527,15 @@ export class Manager {
           result.error = util.format("パラメータ書式エラー: %s", func.function);
           continue;
         }
-        if (funcPt.length !== func.params.length) {
-          result.error = util.format(
-            "パラメータの数が一致しない: %s",
-            func.function
-          );
-          continue;
-        }
+        // if (funcPt.length !== func.params.length) {
+        //   result.error = util.format(
+        //     "パラメータの数が一致しない: %s %d %d",
+        //     func.function,
+        //     funcPt.length,
+        //     func.params.length
+        //   );
+        //   continue;
+        // }
         //命令の実行
         try {
           if (this.debug)
@@ -560,8 +562,8 @@ export class Manager {
     //クライアントに返すデータを設定
     if (session.isReturn()) {
       res.json(session.result).on("error", () => {});
-      res.end();
     }
+    res.end();
   }
 
   /**

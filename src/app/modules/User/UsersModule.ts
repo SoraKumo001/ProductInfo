@@ -160,6 +160,14 @@ export class Users extends amf.Module {
       type: local ? "local" : "remote"
     };
   }
+  public isAdmin() {
+    return this.userInfo ? this.userInfo.admin : false;
+  }
+  @amf.EXPORT
+  public async request() {
+    return this.userInfo;
+  }
+  @amf.EXPORT
   public logout() {
     const user = {
       no: -1,
@@ -173,16 +181,8 @@ export class Users extends amf.Module {
     this.userInfo = user;
     return user;
   }
-  public isAdmin() {
-    return this.userInfo ? this.userInfo.admin : false;
-  }
-  public async JS_request() {
-    return this.userInfo;
-  }
-  public async JS_logout() {
-    return this.logout();
-  }
-  public async JS_login(
+  @amf.EXPORT
+  public async login(
     userId: string,
     userPass: string,
     local: boolean,
@@ -199,7 +199,8 @@ export class Users extends amf.Module {
     }
     return false;
   }
-  public async JS_setUser(
+  @amf.EXPORT
+  public async setUser(
     userNo: number,
     userId: string,
     userName: string,
@@ -265,7 +266,8 @@ export class Users extends amf.Module {
       return result;
     }
   }
-  public async JS_delUser(userNo: number, local: boolean) {
+  @amf.EXPORT
+  public async delUser(userNo: number, local: boolean) {
     if (!this.isAdmin()) return false;
     if (local) {
       const userModel = this.getLocalDB().getRepository(UserEntity);
@@ -280,8 +282,8 @@ export class Users extends amf.Module {
       return !!result;
     }
   }
-
-  public async JS_getUsers(local: boolean): Promise<UserInfo[] | null> {
+  @amf.EXPORT
+  public async getUsers(local: boolean): Promise<UserInfo[] | null> {
     if (!this.isAdmin()) return null;
     let userEntitys: UserEntity[];
     if (local) {

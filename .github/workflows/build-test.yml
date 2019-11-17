@@ -17,12 +17,10 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-${{ env.cache-name }}-
-            ${{ runner.OS }}-build-
-            ${{ runner.OS }}-
+          restore-keys: ${{ runner.OS }}-build-${{ env.cache-name }}-
       - name: Install Dependencies
-        run: yarn install
+        run: npm install
       - name: Build
-        run: |
-          yarn build:all
+        run: npm build:all
+      - name: API test
+        run: npm run test
