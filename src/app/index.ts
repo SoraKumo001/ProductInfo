@@ -67,7 +67,7 @@ manager
     let server: Server;
     const promise = new Promise(resolve => {
       //待ち受けポート設定
-      if (process.platform === "win32") {
+      if (process.platform === "win32" || testMode) {
         server = app.listen(8080, resolve);
         manager.output("listen: http://localhost:8080");
       } else {
