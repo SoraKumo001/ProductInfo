@@ -45,7 +45,7 @@ export class RakutenModule extends amf.Module {
         connect,
         RakutenTagGroupEntity
       );
-      this.getApiKey().then(apiKey => (this.apiKey = apiKey));
+      this._getApiKey().then(apiKey => (this.apiKey = apiKey));
     });
     return true;
   }
@@ -196,27 +196,30 @@ export class RakutenModule extends amf.Module {
     const users = this.getSessionModule(Users);
     return users.isAdmin();
   }
-  public async setApiKey(apiKey: string) {
+  public async _setApiKey(apiKey: string) {
     this.apiKey = apiKey;
     return await this.optionRepository!.save({ name: "API_KEY", value: apiKey });
   }
-  public async getApiKey() {
+  public async _getApiKey() {
     return (await this.optionRepository!.findOne({ name: "API_KEY" }))?.value;
   }
-  public async JS_setApiKey(apiKey: string) {
-    return !this.isAdmin() ? false : await this.setApiKey(apiKey);
+  @amf.EXPORT
+  public async setApiKey(apiKey: string) {
+    return !this.isAdmin() ? false : await this._setApiKey(apiKey);
   }
-  public async JS_getApiKey() {
-    return !this.isAdmin() ? false : await this.getApiKey();
+  @amf.EXPORT
+  public async getApiKey() {
+    return !this.isAdmin() ? false : await this._getApiKey();
   }
-
-  public async JS_getItem(itemCode: string) {
+  @amf.EXPORT
+  public async getItem(itemCode: string) {
     const item = await this.itemRepository!.findOne(itemCode, {
       relations: ["genre", "tags"]
     });
     return item;
   }
-  public async JS_getTree(parentId: number, level: number) {
+  @amf.EXPORT
+  public async getTree(parentId: number, level: number) {
     const repository = this.genreRepository;
     if (!repository) return undefined;
     const parent = await repository.findOne(parentId);
@@ -227,7 +230,8 @@ export class RakutenModule extends amf.Module {
       })
     });
   }
-  public async JS_getTreeRoot(genreId: number) {
+  @amf.EXPORT
+  public async getTreeRoot(genreId: number) {
     const repository = this.genreRepository;
     if (!repository) return undefined;
     const tree = await repository.getParent(genreId);
@@ -242,7 +246,8 @@ export class RakutenModule extends amf.Module {
       target = parent;
     }
   }
-  public async JS_getGenre(genreId: number) {
+  @amf.EXPORT
+  public async getGenre(genreId: number) {
     const repository = this.genreRepository;
     if (!repository) return undefined;
     const genre = await repository.findOne(genreId, {
@@ -250,7 +255,8 @@ export class RakutenModule extends amf.Module {
     });
     return genre;
   }
-  public async JS_getGenreItem(options: ItemOptions) {
+  @amf.EXPORT
+  public async getGenreItem(options: ItemOptions) {
     if(!this.apiKey)
       return false;
     const reader = new RakutenReader(this.apiKey);
@@ -275,11 +281,5 @@ export class RakutenModule extends amf.Module {
     this.saveShop(shopMap);
 
     return itemResult;
-  }
-  async onTest() {
-    // const remoteDB = await this.getModule(RemoteDB);
-    // remoteDB.enter(() => {
-    //   this.loadGenre();
-    //});
   }
 }

@@ -151,7 +151,7 @@ export class Adapter<T extends { [key: string]: any } = {}> {
   public exec(
     v1: FunctionData[][] | string,
     ...v2: unknown[]
-  ): Promise<never|unknown> {
+  ): Promise<never | unknown> {
     let functionSet: FunctionSet;
     if (Array.isArray(v1)) {
       const functions: FunctionData[] = [];
@@ -225,104 +225,66 @@ export class Adapter<T extends { [key: string]: any } = {}> {
         });
     }
 
-    const res = (await Adapter.sendJsonAsync(
+    const res = await Adapter.sendJson(
       this.scriptUrl + "?cmd=exec",
       params,
       undefined,
       binary
-    )) as AdapterResultFormat | null;
-
-    if (res === null) {
-      for (let funcs of functionSet) {
-        // eslint-disable-next-line no-console
-        console.error("通信エラー");
-        funcs.promise.reject("通信エラー");
-      }
-      return;
-    }
-    //バイナリデータはそのまま返却
-    if (binary) {
-      for (let funcs of functionSet) {
-        funcs.promise.resolve(res);
-      }
-      return;
-    }
-    //セッションキーの更新
-    if (res.globalHash) {
-      localStorage && localStorage.setItem(this.keyName, res.globalHash);
-      this.globalHash = res.globalHash;
-    }
-    if (res.sessionHash) {
-      sessionStorage && sessionStorage.setItem(this.keyName, res.sessionHash);
-      this.sessionHash = res.sessionHash;
-    }
-
-    const results = res.results;
-    let index = 0;
-    for (let funcs of functionSet) {
-      const length = funcs.functions.length;
-      if (funcs.array) {
-        const values = [];
-        for (let i = index; i < length; i++) {
-          if (results[i].error) {
-            // eslint-disable-next-line no-console
-            console.error(results[i].error);
-            funcs.promise.reject(results[i].error);
-            break;
-          }
-          values.push(results[i].value);
+    )
+      .catch(e => {
+        console.error(e);
+        for (let funcs of functionSet) {
+          funcs.promise.reject("通信エラー");
         }
-        funcs.promise.resolve(values);
-      } else {
-        const result = results[index];
-        // eslint-disable-next-line no-console
-        if (result.error) funcs.promise.reject(result.error);
-        else funcs.promise.resolve(result.value);
-      }
-      index += length;
-    }
-  }
+      })
+      .then(v => {
+        if (!v) return;
 
-  /**
-   *Jsonデータ送受信とPromise化
-   *
-   * @static
-   * @param {string} url
-   * @param {unknown} [data]
-   * @param {{ [key: string]: string }} [headers]
-   * @param {boolean} [binary]
-   * @returns {Promise<unknown>}
-   * @memberof Adapter
-   */
-  public static sendJsonAsync(
-    url: string,
-    data?: object,
-    headers?: { [key: string]: string },
-    binary?: boolean
-  ): Promise<unknown> {
-    return new Promise((resolve, reject): void => {
-      if (binary) {
-        Adapter.sendJsonToBinary(
-          url,
-          data,
-          (value, status): void => {
-            if (status === 200) resolve(value);
-            else reject({ value, status });
-          },
-          headers
-        );
-      } else {
-        Adapter.sendJson(
-          url,
-          data,
-          (value, status): void => {
-            if (status === 200) resolve(value);
-            else reject({ value, status });
-          },
-          headers
-        );
-      }
-    });
+        const res = v.data as AdapterResultFormat;
+
+        //バイナリデータはそのまま返却
+        if (binary) {
+          for (let funcs of functionSet) {
+            funcs.promise.resolve(res);
+          }
+          return;
+        }
+        //セッションキーの更新
+        if (res.globalHash) {
+          localStorage && localStorage.setItem(this.keyName, res.globalHash);
+          this.globalHash = res.globalHash;
+        }
+        if (res.sessionHash) {
+          sessionStorage &&
+            sessionStorage.setItem(this.keyName, res.sessionHash);
+          this.sessionHash = res.sessionHash;
+        }
+
+        const results = res.results;
+        let index = 0;
+        for (let funcs of functionSet) {
+          const length = funcs.functions.length;
+          if (funcs.array) {
+            const values = [];
+            for (let i = index; i < length; i++) {
+              if (results[i].error) {
+                // eslint-disable-next-line no-console
+                console.error(results[i].error);
+                funcs.promise.reject(results[i].error);
+                break;
+              }
+              values.push(results[i].value);
+            }
+            funcs.promise.resolve(values);
+          } else {
+            const result = results[index];
+            // eslint-disable-next-line no-console
+            if (result.error) funcs.promise.reject(result.error);
+            else funcs.promise.resolve(result.value);
+          }
+          index += length;
+        }
+      });
   }
 
   /**
@@ -334,48 +296,23 @@ export class Adapter<T extends { [key: string]: any } = {}> {
    * @param {unknown} data
    * @param {Function} proc
    * @param {{ [key: string]: string }} [headers]
+   * @param {boolean} [binary]
    * @returns {void}
    * @memberof Adapter
    */
   private static sendJson(
     url: string,
     data: object | undefined,
-    proc: (value: unknown, status: number) => void,
-    headers?: { [key: string]: string }
-  ): void {
-    axios({
+    headers?: { [key: string]: string },
+    binary?: boolean
+  ) {
+    return axios({
       method: "POST",
       headers: { ...headers, "Content-Type": "application/json" },
       data: JSON.stringify(data),
+      responseType: binary ? "arraybuffer" : "json",
       url
-    }).then(res => proc(res.data, res.status));
-  }
-
-  /**
-   *Jsonデータの送信とblobの受け取り
-   *
-   * @private
-   * @static
-   * @param {string} url
-   * @param {unknown} data
-   * @param {Function} proc
-   * @param {{ [key: string]: string }} [headers]
-   * @returns {void}
-   * @memberof Adapter
-   */
-  private static sendJsonToBinary(
-    url: string,
-    data: object | undefined,
-    proc: (value: unknown, status: number) => void,
-    headers?: { [key: string]: string }
-  ): void {
-    axios({
-      method: "POST",
-      headers: { ...headers, "Content-Type": "application/json" },
-      data: JSON.stringify(data),
-      responseType: "arraybuffer",
-      url
-    }).then(res => proc(res.data, res.status));
+    });
   }
 
   /**

@@ -187,7 +187,7 @@ export class Users extends amf.Module {
     userPass: string,
     local: boolean,
     keep?: boolean
-  ) {
+  ):Promise<false | UserInfo | null> {
     if (await this.isLogin(userId, userPass, local)) {
       const result = await this.getUserInfo(userId, local);
       if (result) {

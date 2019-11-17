@@ -6,10 +6,10 @@
   "scripts": {
     "start": "nodemon --preserve-symlinks dist/app/index.js",
     "test": "node --preserve-symlinks dist/app/index.js --test",
-    "watch:test": "concurrently \"npm:watch:front\" \"npm:watch:back\" \"npm:test\"",
-    "watch:all": "concurrently \"npm:watch:front\" \"npm:watch:back\" \"npm:start\"",
+    "watch": "concurrently \"npm:watch:front\" \"npm:watch:back\"",
+    "watch:run": "concurrently \"npm:watch:front\" \"npm:watch:back\" \"npm:start\"",
     "build:all": "npm run build:back && npm run build:front",
-    "watch:front": "webpack -b src/front/webpack.config.js -w --mode development",
+    "watch:front": "webpack --config src/front/webpack.config.js -w --mode development",
     "build:front": "webpack --config src/front/webpack.config.js",
     "watch:back": "tsc -b -w ",
     "build:back": "tsc -b "

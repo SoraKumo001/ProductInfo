@@ -121,7 +121,17 @@ export class RemoteDB<T extends CustomMap = CustomMap> extends amf.Module<T> {
     const users = this.getSessionModule(Users);
     return users.isAdmin();
   }
-  public async JS_getConfig() {
+  public async enter(proc: () => void) {
+    if (this.isConnect()) {
+      proc();
+    } else {
+      this.addEventListener("connect", () => {
+        proc();
+      });
+    }
+  }
+  @amf.EXPORT
+  public async getConfig() {
     if (!this.isAdmin()) return null;
 
     if (!this.localRepository) return false;
@@ -143,7 +153,8 @@ export class RemoteDB<T extends CustomMap = CustomMap> extends amf.Module<T> {
     };
     return result;
   }
-  public async JS_setConfig(config: DatabaseConfigEntity) {
+  @amf.EXPORT
+  public async setConfig(config: DatabaseConfigEntity) {
     if (!this.isAdmin()) return null;
     if (!this.localRepository) return null;
     await this.localRepository.clear();
@@ -151,21 +162,12 @@ export class RemoteDB<T extends CustomMap = CustomMap> extends amf.Module<T> {
     this.getManager().sendMessage("connect");
     return this.connect();
   }
-
-  public async JS_getInfo() {
+  @amf.EXPORT
+  public async getInfo() {
     if (!this.isAdmin() || !this.connection) return null;
     const result = await this.connection.query(
       "select true as connect,current_database() as database,pg_database_size(current_database()) as size,version() as server"
     );
     return result ? result[0] : null;
-  }
-  public async enter(proc: () => void) {
-    if (this.isConnect()) {
-      proc();
-    } else {
-      this.addEventListener("connect", () => {
-        proc();
-      });
-    }
   }
 }

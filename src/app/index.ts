@@ -6,15 +6,20 @@ import { HtmlCreater } from "./HtmlCreater";
 import browserSync from "browser-sync";
 import { Server } from "http";
 import { Adapter } from "@jswf/adapter";
-import { Users } from "./modules/User/UsersModule";
+import { Users, UserInfo } from "./modules/User/UsersModule";
 const connectBrowserSync = require("connect-browser-sync");
 
 const options = new Set(process.argv);
 const testMode = options.has("--test");
 
 interface AdapterUserMap {
-  "Users.request": typeof Users.prototype.request;
-  "Users.login": typeof Users.prototype.login;
+  "Users.request": () => UserInfo;
+  "Users.login": (
+    userId: string,
+    userPass: string,
+    local: boolean,
+    keep?: boolean
+  ) => Promise<false | UserInfo | null>;
   "Users.logout": typeof Users.prototype.logout;
   "Users.setUser": typeof Users.prototype.setUser;
   "Users.delUser": typeof Users.prototype.delUser;
@@ -80,12 +85,10 @@ manager
 
     if (testMode) {
       promise.then(async () => {
-        const adapter = new Adapter<AdapterUserMap>("http://127.0.0.1:8080/");
+        const adapter = new Adapter<AdapterUserMap>("http://0.0.0.0:8080/");
         try {
           console.log("\n--- セッション開始テスト ---");
-          await adapter
-            .exec("Users.request")
-            .then(value => console.log(value));
+          await adapter.exec("Users.request").then(value => console.log(value));
           console.log("\n--- ユーザ作成テスト ---");
           await adapter
             .exec("Users.setUser", 0, "test-user", "テストユーザ", "test", true)
@@ -97,8 +100,7 @@ manager
           console.log("\n--- セッション確認 ---");
           await adapter.exec("Users.request").then(value => console.log(value));
           console.log("\n--- ログアウト ---");
-          await adapter
-          .exec("Users.logout").then(value => console.log(value))
+          await adapter.exec("Users.logout").then(value => console.log(value));
         } catch (e) {
           console.error(e);
           server.close(() => process.exit(-1));
