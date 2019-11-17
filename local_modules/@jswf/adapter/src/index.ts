@@ -39,7 +39,7 @@ var sessionStorage: Storage;
  * @export
  * @class Adapter
  */
-export class Adapter<T extends { [key: string]: any }> {
+export class Adapter<T extends { [key: string]: any }={}> {
   private handle: number | null;
   private scriptUrl: string;
   private keyName: string;

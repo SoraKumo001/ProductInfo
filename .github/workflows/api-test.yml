@@ -1,5 +1,5 @@
 #一般リポジトリ用ビルドテスト
-name: BuildTest
+name: API Test
 
 on:
   push:
@@ -21,6 +21,6 @@ jobs:
       - name: Install Dependencies
         run: npm install
       - name: Build
-        run: npm build:all
+        run: npm run build:all
       - name: API test
         run: npm run test
