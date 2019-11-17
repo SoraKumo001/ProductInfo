@@ -22,7 +22,7 @@
   "author": "SoraKumo",
   "license": "MIT",
   "dependencies": {
-    "react": "~16.11.0",
+    "react": "~16.12.0",
     "resize-observer-polyfill": "~1.5.1",
     "styled-components": "~4.4.1"
   },

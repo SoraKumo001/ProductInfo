@@ -10,7 +10,10 @@
   },
 
 	"references": [
-		{"path": "./src/app"}
+    {"path": "./src/app"},
+    {"path": "node_modules/@jswf/adapter/src/"},
+    {"path": "node_modules/@jswf/redux-module/src/"},
+    {"path": "node_modules/@jswf/rfs/src/"}
 	],
 	"exclude": ["."]
 }
