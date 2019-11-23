@@ -1,4 +1,4 @@
-import { Adapter } from "@jswf/adapter";
+import { Adapter } from "@rfcs/adapter";
 import { RakutenModule } from "../Module/RakutenModule";
 import { ReduxModule } from "@jswf/redux-module";
 export interface ManagerState {

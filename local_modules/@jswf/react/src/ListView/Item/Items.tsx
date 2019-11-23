@@ -9,7 +9,7 @@ import React, {
 import { ListViewDragData, ListView } from "..";
 import { ListRow, ListItem } from "../ExportDefinition";
 import { ItemColumn, Root, Item } from "./Items.style";
-import imgFile from "../../../images/file.png";
+import imgFile from "../../images/file.png";
 
 interface ItemsProps {
   listView: ListView;

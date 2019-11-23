@@ -1,4 +1,4 @@
-import { Adapter } from "@jswf/adapter";
+import { Adapter } from "@rfcs/adapter";
 import { ReduxModule } from "@jswf/redux-module";
 
 export interface RakutenTagEntity {

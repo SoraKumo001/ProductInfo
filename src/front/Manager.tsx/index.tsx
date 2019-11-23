@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Adapter } from "@jswf/adapter";
+import { Adapter } from "@rfcs/adapter";
 import { RakutenModule } from "../Module/RakutenModule";
 import React from "react";
 import { useModule } from "@jswf/redux-module";

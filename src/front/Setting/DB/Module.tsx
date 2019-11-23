@@ -1,4 +1,4 @@
-import { Adapter } from "@jswf/adapter";
+import { Adapter } from "@rfcs/adapter";
 export interface DatabaseInfo {
   connect: boolean;
   database: string;

@@ -1,11 +1,11 @@
-import { Manager } from "@jswf/rfs";
+import { Manager } from "@rfcs/core";
 import * as path from "path";
-import express from "express";
+import Express from "express";
 import * as fs from "fs";
 import { HtmlCreater } from "./HtmlCreater";
 import browserSync from "browser-sync";
 import { Server } from "http";
-import { Adapter } from "@jswf/adapter";
+import { Adapter } from "@rfcs/adapter";
 import { Users, UserInfo } from "./modules/User/UsersModule";
 const connectBrowserSync = require("connect-browser-sync");
 
@@ -38,25 +38,26 @@ const htmlCreater = new HtmlCreater({
 });
 
 //Expressの作成
-const app = express();
+const express = Express();
 //アクセス用リモードアドレスの設定
 manager
   .init(
     {
       debug: testMode ? 1 : 2,
-      modulePath: path.resolve(__dirname, "./modules"), //モジュール置き場
+      moduleDir: path.resolve(__dirname, "./modules"), //モジュール置き場
       databaseOption: {
         //TypeORMのDB設定(未指定の場合はsqliteがメモリ上に作成される)
         type: "sqlite",
         database: path.resolve(__dirname, "../db/app.db")
-      }
+      },
+      express,
+      scriptPath:"/"
     },
-    app,
-    "/"
+
   )
   .then(() => {
     //.jsの自動リロード
-    app.use(
+    express.use(
       connectBrowserSync(
         browserSync({
           ui: false,
@@ -65,19 +66,19 @@ manager
         })
       )
     );
-    app.get("/", htmlCreater.output.bind(htmlCreater));
+    express.get("/", htmlCreater.output.bind(htmlCreater));
     //静的ファイルの設定(index.jsからの相対パス)
-    app.use(express.static(path.resolve(__dirname, "../public")));
+    express.use(Express.static(path.resolve(__dirname, "../public")));
 
     let server: Server;
     const promise = new Promise(resolve => {
       //待ち受けポート設定
       if (process.platform === "win32" || testMode) {
-        server = app.listen(8080, resolve);
+        server = express.listen(8080, resolve);
         manager.output("listen: http://localhost:8080");
       } else {
         const path = "dist/sock/app.sock";
-        server = app.listen(path, resolve);
+        server = express.listen(path, resolve);
         fs.chmodSync(path, "666");
         manager.output("listen: dist/sock/app.sock");
       }

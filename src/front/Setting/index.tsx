@@ -7,7 +7,7 @@ import {
 } from "@jswf/react";
 import React, { useState, createElement } from "react";
 import { DBSettingView, SettingState } from "./DB/DBSettingView";
-import { Adapter } from "@jswf/adapter";
+import { Adapter } from "@rfcs/adapter";
 import { CircleButton } from "../Parts/CircleButton";
 import { FlexParent } from "../Parts/FlexParent";
 import { useDispatch, useSelector } from "react-redux";

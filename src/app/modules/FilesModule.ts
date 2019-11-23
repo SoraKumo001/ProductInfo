@@ -1,4 +1,4 @@
-import * as amf from "@jswf/rfs";
+import * as amf from "@rfcs/core";
 import { Users } from "./User/UsersModule";
 import { RemoteDB } from "./RemoteDBModule";
 import express = require("express");

@@ -1,12 +1,13 @@
 {
   "name": "@jswf/react",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Virtual Window for React",
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -b src",
-    "watch": "tsc -b -w src"
+    "build": "npm run update-dist && tsc -b src",
+    "watch": "npm run update-dist && tsc -b -w src",
+    "update-dist": "pkg-local dist && cpx \"src/images/**\" dist/images"
   },
   "publishConfig": {
     "access": "public"
@@ -27,10 +28,12 @@
     "styled-components": "~4.4.1"
   },
   "devDependencies": {
-    "typescript": "~3.7.2",
-    "@types/react": "~16.9.11",
+    "@types/react": "~16.9.12",
     "@types/react-dom": "~16.9.4",
-    "@types/styled-components": "~4.4.0"
+    "@types/styled-components": "~4.4.0",
+    "cpx": "^1.5.0",
+    "pkg-local": "^1.0.3",
+    "typescript": "~3.7.2"
   },
   "repository": {
     "type": "git",

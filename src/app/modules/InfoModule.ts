@@ -1,4 +1,4 @@
-import * as amf from "@jswf/rfs";
+import * as amf from "@rfcs/core";
 
 /**
  *テストモジュール
