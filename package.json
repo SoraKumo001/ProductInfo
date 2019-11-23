@@ -33,7 +33,7 @@
     "typeorm": "^0.2.20"
   },
   "devDependencies": {
-    "@jswf/react": "file:.\\local_modules\\@jswf\\react\\dist",
+    "@jswf/react": "file:.\\local_modules\\@jswf\\react",
     "@jswf/react-star-rating": "^1.0.1",
     "@jswf/redux-module": "^0.1.7",
     "@types/capture-console": "~1.0.0",

@@ -10,3 +10,4 @@ dist/public/favicon.ico
 /dist/public
 src/---/
 yarn-error.log
+!local_modules/@jswf/react/dist/**

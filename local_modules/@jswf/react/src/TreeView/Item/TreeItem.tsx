@@ -1,7 +1,7 @@
 import React, { Component, ReactNode, createRef, RefObject } from "react";
-import imgAlone from "../../images/talone.svg";
-import imgClose from "../../images/tclose.svg";
-import imgOpen from "../../images/topen.svg";
+import imgAlone from "../../../images/talone.svg";
+import imgClose from "../../../images/tclose.svg";
+import imgOpen from "../../../images/topen.svg";
 import { Root } from "./TreeItem.style";
 import { TreeView, TreeItemData, ItemDataDefault, UniqueKey } from "..";
 

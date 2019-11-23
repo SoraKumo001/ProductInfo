@@ -1,6 +1,6 @@
 import React, {  Component, createRef } from "react";
 import { Resize } from "./Resize";
-import imgResize from "../../images/resize.svg";
+import imgResize from "../../../images/resize.svg";
 import { Manager, JWFEvent, MovePoint } from "../../lib/Manager";
 import { BarProps, BarStyle } from "./Bar.style";
 
