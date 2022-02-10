@@ -58,7 +58,7 @@
     "dts-bundle": "~0.7.3",
     "dts-module-filter": "~1.0.0",
     "jsdom": "~15.2.1",
-    "node-sass": "~4.13.0",
+    "node-sass": "~7.0.0",
     "nodemon": "^1.19.4",
     "react": "~16.11.0",
     "react-dom": "~16.11.0",
